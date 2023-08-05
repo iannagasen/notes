@@ -254,3 +254,52 @@ Consumer Groups:
     - if its matching the producer setting, data is stored on disk as is
     - if its a different compression setting, batches are decompressed by the broker and then redecompressed using the specified compression algorithm
   - `WARNING` : If you enable broker side compression, it will consume extra CPU cycles. Optimal is using Producer Level Message Conversion
+
+
+## **`linger.ms & batch.size`**
+  - by default, Kafka producers try to send records as soon as possible
+    - It will have up to `max.in.flight.requests.per.connection=5`, meaning up to 5 message batches being in flight (being sent between the producer in the broker) at most
+    - After this, if more messages must be sent while others are in flight, Kafka is smart and will start batching them before the next batch send
+  - Smart batching helps increase throughput while maintaining very low latency
+    - Added benefit: batches have higher compression ratio so better efficiency
+  - Two settings to influence the batching mechanism
+    - `linger.ms` (default 0)
+      - how long to wait until we send a batch
+      - Adding a small number, for example, 5 ms helps add more messages in the batch at the expense of latency
+    - `batch.size` (default 16KB)
+      - max number of bytes that will be included in a batch
+      - Increasing a batch size to something like 32KB or 64 KB can help increasing the:
+        - compression
+        - throughput
+        - efficiency of requests
+      - Disadvantage of increasing the batch size
+        - may increase memorey usage on the producer side
+        - increase latency, as the producer will wait for the batch to fill  up
+      - Any message that is bigger than the batch size will not be batched
+      - A batch is allocated per partition, so make sure that you dont set it to a number thats too high, otherwise youll run waste memory!
+      - if a batch is filled before `linger.ms`, increase the batch size
+    - ![](screenshots/2023-08-05-23-48-28.png)
+
+## **`High Throughput Producer`**
+  - increase the `linger.ms` and the producer will wait a few milliseconds for the batches to fill up before sending them
+  - if you are sending full batches and have memory to spare, you can use `batch.size` and ssend larger batches
+  - Introducer some producer-level compression for more efficiency in sends
+  - ```java
+    // high troughput producer (at the expense of a bit of latency and CPU usage)
+    properties.setProperty(ProducerConfig.COMPRESSION_TYPE_CONFIG, "snappy");
+    properties.setProperty(ProducerConfig.LINGER_MS_CONFIG, "20");
+    properties.setProperty(ProducerConfig.BATCH_SIZE_CONFIG, Integer.toString(32*1024))
+    ```
+  - What is Producer Throughput:
+    - This refers to how quickly the Kafka producer can send messages to the Kafka broker. 
+    - Higher producer throughput means the producer can send more messages to Kafka in a given time frame. 
+    - To achieve higher producer throughput, various factors come into play, such as message size, batch size, compression settings, and network latency.
+  - What is Latency
+    - refers to the time it takes for a single message to be sent from the producer to the Kafka broker
+    - Low latency means that messages are sent quickly with minimal delay.
+  - Latency vs Throughput
+    - ⬆️ Larger Batches, ⬇️ Lower Latency
+      - When you increase the producer's throughput by sending more messages in each batch or increasing the number of messages sent per unit of time, the latency tends to decrease.
+        - This is because the producer accumulates more messages before sending them in a batch, reducing the overhead of establishing a new connection and sending individual messages.
+      - By batching multiple messages together, the producer can send them in one network request, reducing the per-message overhead. 
+      - This batching approach typically leads to lower latency as the number of network requests is reduced.
