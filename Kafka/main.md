@@ -342,3 +342,13 @@ Consumer Groups:
       - Since Kafka 2.2, the kafka-topics.sh CLI command references Kafka brokers and not Zookeeper for topic management (creation, deletion, etc)
       - as a modern day Kafka developer. never use Zookeeper as a configuration in your Kafka clients, and other programs that connect to Kafka as it is unsecure
 
+## **`About Kafka KRaft`**
+  - KIP 500 - Kafka project started to work to remove the Zookeeper dependency
+  - Zookeeper shows scaling issues when Kafka clusters have > 100_000 partitions
+  - By removing Zookeeper, Kafka can:
+    - Scale to millions of partitions, and becomes easier to maintain and set-up
+    - improves stability, makes it easier to monitor, support and admin
+    - Single security model for the whole system
+    - Single process to start with Kafka
+    - Faster controller shutdown and recovery time
+  - KRaft Architecture
