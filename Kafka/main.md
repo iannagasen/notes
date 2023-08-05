@@ -175,3 +175,21 @@ Consumer Groups:
     - `Exactly once`
       - For Kafka => Kafka workflows: use the Transactional API (easy with Kafka Streams API)
       - For Kafka => External System workflows: use an idempotent consumer
+
+## **`Kafka Brokers`**
+  - A kafka cluster is composed of multipler brokers (servers)
+  - Each broker is identified with its id
+  - Each broker containers certain topic partitions
+  - After connecting to any broker(called a boostrap broker), you will be connected to the entire cluster
+  - A good number to get started is 3 brokers, some big clusters have over 100 brokers
+
+## **`Brokers and Topics`**
+  - Example of Topic-A with 3 partitions and Topic-B with 2 partitions
+  - Note: data is distributed, and broker 103 doesnt have any topic B data
+  - ![](screenshots/2023-08-05-20-32-11.png)
+
+## **`Kafka Broker Discovery`**
+  - Each Kafka broker is also called a `bootstrap server`
+    - means that `you only need to connect to one broker`, and the Kafka clients will know how to be connected to the entire cluster (smart clients)
+    - ![](screenshots/2023-08-05-20-34-32.png)
+  - Each broker knows about all brokers, topics and partitions (metadata)
