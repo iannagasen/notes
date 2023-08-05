@@ -136,3 +136,42 @@ Deserializer
   - indicates how to transform
   - consumer must know in advance the format of the message
   - ![](screenshots/2023-08-05-20-01-40.png)
+
+
+## **`Consumer Groups`**
+Consumer Groups:
+  - All the consumers in an application read data as a consumer groups
+  - Each consumer within a group reads from exclusive partitions
+  - ![](screenshots/2023-08-05-20-05-21.png)
+  - What if too many Consumer?
+    - Some consumers will be inactive - bottle neck
+    - no. of consumer > no. of topic
+    - ![](screenshots/2023-08-05-20-06-53.png)
+  - It is acceptable to have multple consumer groups on the same topic
+  - ![](screenshots/2023-08-05-20-08-01.png)
+  - Why multiple consumer groups?
+    - 1 consumer group per service
+      - Ex: 1 consumer group for location service, and 1 for notification service reading the same message
+  - To create distinct consumer groups, use the consumer property `group.id`
+  
+## **`Consumer Offsets`**
+  - Kafka stores the offsets at which a consumer group has been reading
+  - The offsets committed are in Kafka topic named `__consumer_offsets`
+  - When a consumer in a group has processed daata received from Kafka, it should **periodically committing the offsets** 
+    - Kafka broker will write to `__consumer_offsets`, not the group itself
+    - can also indicate how far the consumer has succesfully reading into the Kafka Topic
+    - when failure, it can go back to the latest committed state
+
+## **`Delivery semantics for consumers`**
+  - By default, Java COnsumers will automatically connit offsets (at least one)
+  - There are 3 delivery semantics if you choose to commit manually
+    - `At lease once (usualy preferred)`
+      - Offsets are committed after the message is processed
+      - If the processing goes wrong , the message will be read again
+      - This can result in duplicate processing of messages. Make sure your processing is `idempotent` 
+        - means, proccesing again the messages wont impact your systems
+    - `At most once`
+      - offsets are committed as soon as messages are received
+    - `Exactly once`
+      - For Kafka => Kafka workflows: use the Transactional API (easy with Kafka Streams API)
+      - For Kafka => External System workflows: use an idempotent consumer
