@@ -120,3 +120,19 @@ Kafka Message Serializer
   - `Message Serialization` means transforming objects / data into bytes
   - They are used on the value and the key
     - ![](screenshots/2023-08-05-19-49-29.png)
+
+
+## **`Kafka Consumers`**
+Consumers
+  - read data from a topic(identified by name) - pull model
+  - may read from 1 or more Partition from a topic
+  - automatically know which broker to read from
+  - In case of broker failures, consumers know how to recover
+  - Data is read in order from low to high offset `within each partitions`
+
+
+## **`Consumer Deserialization`**
+Deserializer
+  - indicates how to transform
+  - consumer must know in advance the format of the message
+  - ![](screenshots/2023-08-05-20-01-40.png)
