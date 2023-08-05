@@ -303,3 +303,42 @@ Consumer Groups:
         - This is because the producer accumulates more messages before sending them in a batch, reducing the overhead of establishing a new connection and sending individual messages.
       - By batching multiple messages together, the producer can send them in one network request, reducing the per-message overhead. 
       - This batching approach typically leads to lower latency as the number of network requests is reduced.
+
+## **`Producer Acknowledgements (acks)`**
+  - Producers can choose to receive acknowledgements of data writes
+    - confirmation that write successfully happend
+    - `acks=0`
+      - Producer wont wait for acknowledgement (possible data loss) 
+    - `acks=1`
+      - Producer will wait for leader acknowledgement (limited data loss)
+    - `acks=all`
+      - Leader + Replicas acknowldgement (no data loss)
+  - ![](screenshots/2023-08-06-00-12-03.png)
+
+## **`Kafka Topic Durability`**
+  - For a topic replication factor of 3, topic data durability can withstand 2 brokers loss
+  - As a rule, for a replication factor of N, you can permanently lose up to N-1 brokers and still recover your data
+
+## **`Zookeeper`**
+  - manages brokers (keeps a list of them)
+  - helps in performing leader election for partitions
+  - sends notifications to Kafka in case of changes:
+    - eg: new topic, broker dies, broker comes up, delete topics
+  - Kafka 2.x cant work without Zookeeper
+  - Kafka 3.x can work without Zookeeper(KIP 500) - using Kafka Raft instead
+  - Kafka 4.x will not have Zookeeper
+  - Zookeeper by design to operates with an odd number of servers(1, 3, 5, 7)
+  - Zookeeper has a leader (writes) the rest of the servers are followers (reads)
+  - (Zookeeper does NOT store consumer offsets with Kafka > v0.10)
+  - Zookeeper Cluster (`ensemble`)
+  - ![](screenshots/2023-08-06-00-20-34.png)
+  - Should you use Zookeeper?
+    - With Kafka Brokers?
+      - Yes, until Kafka 4.0 is out
+      - while waiting forr Kafka without Zookeeper to be production ready
+    - With Kafka Clients?
+      - Over time, the Kafka clients and CLI have been migrated to leverage the brokers as a connection endpoint instead of Zookeeper
+      - Since Kafka 0.10, consumers store offset in Kafka and Zookeeper, and must not connect to Zookeeper as its deprecated
+      - Since Kafka 2.2, the kafka-topics.sh CLI command references Kafka brokers and not Zookeeper for topic management (creation, deletion, etc)
+      - as a modern day Kafka developer. never use Zookeeper as a configuration in your Kafka clients, and other programs that connect to Kafka as it is unsecure
+
