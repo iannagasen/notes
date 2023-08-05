@@ -193,3 +193,25 @@ Consumer Groups:
     - means that `you only need to connect to one broker`, and the Kafka clients will know how to be connected to the entire cluster (smart clients)
     - ![](screenshots/2023-08-05-20-34-32.png)
   - Each broker knows about all brokers, topics and partitions (metadata)
+
+## **`Topic Replication Factor`**
+  - Topics should have a replication `factor > 1 (usually between 2 and 3)`
+  - This way if a broker is down, another broker can have the data and can serve the data
+  - Example: Topic-A with 2 partitions and replication factor of 2
+  - ![](screenshots/2023-08-05-20-48-44.png)
+  - If we lose Broker 102
+    - Broker 101 and 103 can still serve the data, they have replica of Topic A
+
+## **`Concept of Leader for a Partition`**
+  - At any time only ONE broker can be a leader for a given partition
+  - Producers can only send data to the broker that is leader of a partition
+    - The other brokers will replicate the data
+    - Therefore, each partition has one leader and multiple ISR(in-sync replica)
+    - ![](screenshots/2023-08-05-20-54-48.png)
+  - Kafka Consumers by default will read from the leader broker for a partition
+
+## **`Kafka Consumers Replica Fetching (Kafka v2.4+)`**
+  - It is possible to configure consumers to read from the closest replica
+  - This may help to improve latency, and also decrease network costs if using the cloud
+  - ![](screenshots/2023-08-05-20-59-29.png)
+    - In this example, the consumer is reading from the replica, not the leader
