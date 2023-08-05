@@ -215,3 +215,42 @@ Consumer Groups:
   - This may help to improve latency, and also decrease network costs if using the cloud
   - ![](screenshots/2023-08-05-20-59-29.png)
     - In this example, the consumer is reading from the replica, not the leader
+
+## **`Producer Level Message Compression`**
+  - Producer usually send data that is text-based, for example with JSON data
+  - It its important to apply compression to the producer
+    - less memory
+  - Compression can be enabled at the Producer level and does not require any configuration change in the Brokers or in the Consumers
+  - compression.type can be:
+    - none (default)
+    - `gzip`
+    - `lz4`
+    - `snappy`
+    - `zstd` (Kafka 2.1)
+  - Compression is more effective the bigger the batch of message being sent to Kafka!
+    - ![](screenshots/2023-08-05-22-35-13.png)
+  - Advantages:
+    - Much smaller producer request size (compression ratio up to 4x!)
+    - Faster to transfer data over the network => less latency
+    - Better throughput
+    - Better disk utilisation in Kafka (stored messages on disk are smaller)
+  - Disadvantages (very minor)
+    - Producer must commit some CPU cycles to compressions
+    - Consumers must commit some CPU cycles to decompressions
+  - Overall:
+    - Consider testing `snappy` or `lz4` for optimal speed / compression ration
+    - Consider tweaking `linger.ms` and `batch.size` to have bigger batches, and therefor more compression and higher throughput
+    - Use compression in production
+
+
+## **`Broker/Topic Level Message Conversion`**
+  - There is also a setting you can set at the broker level (all topics) or topic-level
+  - `compression.type=producer` (default)
+    - the broker takes the compressed batch from the producer client and writes it directly to the topic's log file without recompressing the data
+    - pushes the necessity of compression at the producer
+  - `compression.type=none`
+    - all batches are decompressed by the broker
+  - `compression.type=lz4`
+    - if its matching the producer setting, data is stored on disk as is
+    - if its a different compression setting, batches are decompressed by the broker and then redecompressed using the specified compression algorithm
+  - `WARNING` : If you enable broker side compression, it will consume extra CPU cycles. Optimal is using Producer Level Message Conversion
