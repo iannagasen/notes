@@ -352,3 +352,49 @@ Consumer Groups:
     - Single process to start with Kafka
     - Faster controller shutdown and recovery time
   - KRaft Architecture
+
+
+## **`Starting Kafka`**
+  - ![](screenshots/2023-08-06-15-43-26.png)
+  - https://www.conduktor.io/kafka/how-to-install-apache-kafka-on-windows-without-zookeeper-kraft-mode/
+  - install wsl2
+    - ```bash
+      wsl --install
+      ```
+  - Enter new username and password
+    - ![](screenshots/2023-08-06-15-49-45.png)
+  - Once you create a User Name and Password, the account will be your default user for the distribution and automatically sign-in on launch.
+  - This account will be considered the Linux administrator, with the ability to run sudo (Super User Do) administrative commands.
+  - Disable IPv6 on WSL2
+    - ```bash
+      sudo sysctl -w net.ipv6.conf.all.disable_ipv6=1
+      sudo sysctl -w net.ipv6.conf.default.disable_ipv6=1
+      ```
+  - Installing Java JDK 11 on WSL2
+    - ```bash
+      wget -O- https://apt.corretto.aws/corretto.key | sudo apt-key add - 
+      sudo add-apt-repository 'deb https://apt.corretto.aws stable main'
+      sudo apt-get update; sudo apt-get install -y java-11-amazon-corretto-jdk
+      ```
+  - Download the latest version of Kafka
+    - Link: https://kafka.apache.org/downloads
+    - ```bash
+      wget https://downloads.apache.org/kafka/3.5.1/kafka_2.13-3.5.1.tgz
+      ```
+  - Download and extract the contents to a directory of your choice, for example ~/kafka_2.13-3.5.1
+    - ```bash
+      tar xzf kafka_2.13-3.5.1.tgz
+      mv kafka_2.13-3.5.1 ~
+      ```
+  - add command to .bashrc to load the kafka binaries by default
+    - Edit .bashrc
+      - ```bash
+        nano ~/.bashrc
+        ```
+    - Go to the last line and paste the directory of the bin
+      - `/home/ianneil/kafka_2.13-3.5.1/bin`
+    - Setup also the Path variable environment by adding these to the bashrc
+      - `PATH="$PATH:/home/ianneil/kafka_2.13-3.5.1/bin"`
+    - Exit Ubuntu and Start. Echo $PATH if Path exists
+
+  - Install Kafka Broker with Zookeeper
