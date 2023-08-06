@@ -397,4 +397,30 @@ Consumer Groups:
       - `PATH="$PATH:/home/ianneil/kafka_2.13-3.5.1/bin"`
     - Exit Ubuntu and Start. Echo $PATH if Path exists
 
-  - Install Kafka Broker with Zookeeper
+  - Start Zookeeper
+    - ```bash
+      ~/kafka_2.13-3.5.1/bin/zookeeper-server-start.sh ~/kafka_2.13-3.5.1/config/zookeeper.properties
+      ```
+  - Start Kafka, open new terminal
+    - ```bash
+      ~/kafka_2.13-3.5.1/bin/kafka-server-start.sh ~/kafka_2.13-3.5.1/config/server.properties
+      ```
+
+## **`Start Kafka in KRaft mode (no Zookeeper)`**
+Kafka Raft is prod ready since Kafka 3.3.1
+- Link: https://www.conduktor.io/kafka/how-to-install-apache-kafka-on-windows-without-zookeeper-kraft-mode/
+1. Generate a cluster ID and format the storage using `kafka-storage.sh`
+  - ```bash
+    kafka-storage.sh random-uuid
+    ```
+    - this returns a UUID
+2. Format your storage directory
+   - ```bash
+     kafka-storage.sh format -t <uuid> -c ~/kafka_2.13-3.5.1/config/kraft/server.properties
+     ```
+3. Now you can launce the broker itself in daemon mode by running this command
+   - ```bash
+     kafka-server-start.sh ~/kafka_2.13-3.5.1/config/kraft/server.properties
+     ```
+4. Result: Kafka running on its own with KRaft mode, broker is running without Zookeeper
+   - ![](screenshots/2023-08-06-18-12-44.png)
