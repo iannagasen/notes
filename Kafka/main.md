@@ -410,10 +410,10 @@ Consumer Groups:
 Kafka Raft is prod ready since Kafka 3.3.1
 - Link: https://www.conduktor.io/kafka/how-to-install-apache-kafka-on-windows-without-zookeeper-kraft-mode/
 1. Generate a cluster ID and format the storage using `kafka-storage.sh`
-  - ```bash
-    kafka-storage.sh random-uuid
-    ```
-    - this returns a UUID
+   - ```bash
+     kafka-storage.sh random-uuid
+     ```
+      - this returns a UUID
 2. Format your storage directory
    - ```bash
      kafka-storage.sh format -t <uuid> -c ~/kafka_2.13-3.5.1/config/kraft/server.properties
@@ -424,3 +424,53 @@ Kafka Raft is prod ready since Kafka 3.3.1
      ```
 4. Result: Kafka running on its own with KRaft mode, broker is running without Zookeeper
    - ![](screenshots/2023-08-06-18-12-44.png)
+
+## **`Kafka CLI`**
+  - come bundled with the Kafka binaries
+  - If you setupd the $PATH variable correctly:
+    - then you should be able to invoke the CLI anywhere on the machine
+  - Use the `--bootstrap-server` option everywhere, not `--zookeeper`
+    - ✔️ `kafka-topics --bootsrap-server localhost:9092`
+    - ❌ `kafka-topics --zookeeper localhost:2181`
+    - `--bootstrap-server`
+      -  used to specify the initial set of Kafka broker(s) to which the client should connect.
+         - Brokers 
+           - nodes in the Kafka cluster 
+           - responsible for handling incoming messages and managing partitions.
+       - preferred and recommended for all new Kafka client applications because:
+         - it connects directly to the Kafka brokers 
+         - leverages the newer Kafka protocol.
+     - `--zookeeper`
+       - used for coordinating broker discovery, configuration, and partition assignment.
+       - Kafka has moved away from ZooKeeper for broker coordination and management
+         - instead, it uses an internal metadata protocol and metadata stored in brokers.
+
+## **`Using kafka-topics CLI`**
+  - Kafka Topic Management
+    - Create Kafka Topics
+    - List Kafka Topics
+    - Describe Kafka Topics
+    - Increase Partitions in a Kafka Topic
+    - Delete a Kafka Topic
+  - Creating first topic
+    - ```bash
+      kafk-topics.sh --bootstrap-server localhost:9092 --topic first_topic --create
+      ```
+      - ![](screenshots/2023-08-07-22-28-55.png)
+  - List all topics:
+    - ```bash
+      kafka-topics.sh --bootstrap-server localhost:9092 --list
+      ```
+  - Describe a topic
+    - ```bash
+      kafka-topics.sh --bootstrap-server localhost:9092 --topic first_topic --describe
+      ```
+  - Delete a topic
+    - ```bash
+      kafka-topics.sh --bootstrap-server localhost:9092 --topic first_topic --delete
+      ```
+  - Note you cannot create a topic with Replication factor higher than the no. of broker
+    - ```bash
+      kafka-topics.sh --bootstrap-server localhost:9092 --topic third_topic --create --partitions 3 --replication-factor 2
+      ```
+    - ![](screenshots/2023-08-07-22-37-55.png)
