@@ -68,6 +68,15 @@ Why Apache Kafka
   - Remember: Kafka is only used as a transportation mechanism
 
 
+## **`Kafka Architecture Overview`**
+|-Component-|-Role-|
+|-----------|------|
+| Producer | Sends messages to Kafka |
+| Consumer | Retrieves messages from Kafka |
+| Topics | Logical name of where messages are stored in the broker |
+| Zookeeper ensemble | Helps maintain consensus in the cluster | 
+| Broker | handles the commit log (how messages are stored in the disk ) | 
+
 
 ## **`Kafka Topics`**
 Topics 
@@ -252,6 +261,9 @@ Consumer Groups:
   - Each broker containers certain topic partitions
   - After connecting to any broker(called a boostrap broker), you will be connected to the entire cluster
   - A good number to get started is 3 brokers, some big clusters have over 100 brokers
+  
+  - Brokers can be thought of as the server side of Kafka
+    - Before VMs and K8s, broker are hosted using physical server
 
 
 ## **`Brokers and Topics`**
@@ -424,7 +436,6 @@ Consumer Groups:
     - Single security model for the whole system
     - Single process to start with Kafka
     - Faster controller shutdown and recovery time
-  - KRaft Architecture
 
 
 ## **`Starting Kafka`**
