@@ -151,7 +151,16 @@ Producer Message keys:
     - ![](screenshots/2023-08-05-19-44-40.png)
 
 ## **`Kafka Message Anatomy`**
-![](screenshots/2023-08-05-19-46-34.png)
+`Message` / `Record`
+  - basic piece of data flowing through Kafka
+  - Messages are how Kafka represents your data
+  - Each message has a:
+    - timestamp
+    - key-value pairs
+    - optional headers
+  - ![](screenshots/2023-08-05-19-46-34.png)
+  - Each key and value can interact in its own specific ways to serialize or deserialize its data
+  - ![](screenshots/2023-08-08-13-04-05.png)
 
 
 ## **`Kafka Message Serializer`**
