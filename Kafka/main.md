@@ -21,7 +21,7 @@ Each integration comes with difficulties around:
 
 Each source system will have an increased load from the connections
 
-### Why Apache Kafka:
+## **`Why Apache Kafka:`**
 
 Decoupling of data streams & systems
 Source System 
@@ -48,7 +48,7 @@ Why Apache Kafka
     - Can scale to millions of messages per second
   - High Performance (latency of less than 10ms) - real time
 
-## Use Cases:
+## **`Use Cases:`**
   - Messaging System
   - Activity Tracking
   - Gather metrics from many different locations
@@ -58,7 +58,7 @@ Why Apache Kafka
   - Integration with Spark, Flink, Storm, Hadoop and other Big Data technologies
   - Micro-services pub/sub
 
-## How company uses Kafka
+## **`How company uses Kafka`**
   - Netflix:
     - use Kafka to apply recommendations in real time while youre watching TV shows
   - Uber: 
@@ -67,9 +67,11 @@ Why Apache Kafka
     - uses Kafka to prevent spam, collect user interactions to make better connection recommendations in real-time
   - Remember: Kafka is only used as a transportation mechanism
 
+
+
 ## **`Kafka Topics`**
 Topics 
-  - parictula stream of data in a Kafka Cluster
+  - parictular stream of data in a Kafka Cluster
   - similar to a table in a DB (w/o all the constraints)
   - identify a topic bi its `name`
   - support any kind of message format (JSON, text file)
@@ -78,6 +80,12 @@ Topics
     - use Kafka Producers to send data
     - use Kafka Consumers to read data
     - ![](screenshots/2023-08-05-19-29-06.png)
+  - Streams/sequence of related "messages" or events 
+    - is a logical representation
+    - it categorize messages into `Groups`
+  - Developers are defined by Topics
+  - Producer <- -> Topic: N - N relationship
+    - Unlimited no. of Topics
 
 ## **`Partitions and offsets`**
 - Topics are split in `partitions`(Ex: 100 partitions)
@@ -88,20 +96,52 @@ Topics
   - Kafka topics are immutable: once data is written to a partition, it cannot be changed
     - data cannot be deleted or update
     - keep on writing through partition
+    - data should only flow
+  - You can have as many partitions per topic as you want
 
-Data in Kafka is kept only for a limited time (default is one week - configurable)
-Offsets only have meaning for a specific partition
-  - Ex: offset 3 in partition 0 doesnt represent the same data as offset 3 in partition 1
-  - Offsets are not re-used even if previous messages have beed deleted
-Order is guaranteed only within a partition (not across partitions)
-You can have as many partitions per topic as you want
+Data in Kafka is kept only for a limited time 
+  - `Retention Policy` (default is one week - configurable)
 
+Offsets
+  - Offsets only have meaning for a specific partition
+    - Ex: offset 3 in partition 0 doesnt represent the same data as offset 3 in partition 1
+    - Offsets are not re-used even if previous messages have beed deleted
+  - **Order is guaranteed** only within a partition (not across partitions)
+  - Offsets are unique identifiers assigned to individual message within a partition
+    - they indicate the position of a message in the partition's message sequence/stream
+  - Offsets are used by Consumers to keep track of their progress while reading messages from partitions
+
+
+## **`Topics, Partitions and Segments`**
+  - ![](screenshots/2023-08-08-12-38-03.png)
+  - Topic is a log, it is persistent, it will be stored
+    - Segments are the units that will be stored|
+  - Topics are broken down into Partitions
+
+Why are Topics broken down into Partitions?
+  - `Scalability`, by dividing a topic into partitions, Kafka can:
+    - horizontally scale to handle high data throughput.
+    - Each partition can be processed independently
+      - allows multipler producers and consumers to work concurrently w/o bottlenecks
+    - handle volumes of data and support high traffic workloads
+  - `Parallel Processing`
+    - Multiple consumers can read from different partitions of the same topic simultaneously
+  - `Higher Throughput`
+    - since each partition can be handled separately by Kafka brokers,
+      - system can handle more write and read operations
+      - leads to better throughput and reduced latency compared to asingle-threaded system
+  - `Balancing Load`
+    - it allows even distribution of data across brokers and consumers
+  - `Fault Tolerance`
+    - Each partition is replicated across multiple Kafka brokers, forming a replication group
+    - if one broker fails, another broker within the replication group can take over
+    - Replication also prevents data loss since it also stores the data
 
 ## **`Producers`**
 Producers
   - write data to topics(which are mady by partitions)
   - know to which partition to write to (and whichKafka broker has it)
-  - In case of Kafka broker failuers, PRoducers will automatically recover
+  - In case of Kafka broker failuers, Producers will automatically recover
 
 Producer Message keys:
   - Producers can choose to send a key with the message (string, number, binary)
@@ -129,6 +169,25 @@ Consumers
   - automatically know which broker to read from
   - In case of broker failures, consumers know how to recover
   - Data is read in order from low to high offset `within each partitions`
+  - Consumer can be a Producer to another messaging system
+
+
+## **`Decoupling Producers and Consumers`**
+  - Producers and Consumers are decoupled
+  - Slow Consumers do not affect Producers
+  - Add Consumers without affecting Producers (For Scaling)
+  - Failure of Consumer does not affect System
+  - They can fail independently, they can evolve independently
+  - they dont know each other
+  - they are decoupled by the cluster
+
+
+## **`Zookeeper (Ensemble) - Deprecate KIP 500`**
+  - cluster management
+  - Failure detection & recover
+  - Store ACL and secrets
+  - Elect leaders
+  - This is now handled by Kafka Raft - Kafka w/o Zookeeper
 
 
 ## **`Consumer Deserialization`**
@@ -154,6 +213,7 @@ Consumer Groups:
       - Ex: 1 consumer group for location service, and 1 for notification service reading the same message
   - To create distinct consumer groups, use the consumer property `group.id`
   
+
 ## **`Consumer Offsets`**
   - Kafka stores the offsets at which a consumer group has been reading
   - The offsets committed are in Kafka topic named `__consumer_offsets`
@@ -161,6 +221,7 @@ Consumer Groups:
     - Kafka broker will write to `__consumer_offsets`, not the group itself
     - can also indicate how far the consumer has succesfully reading into the Kafka Topic
     - when failure, it can go back to the latest committed state
+
 
 ## **`Delivery semantics for consumers`**
   - By default, Java COnsumers will automatically connit offsets (at least one)
@@ -183,16 +244,19 @@ Consumer Groups:
   - After connecting to any broker(called a boostrap broker), you will be connected to the entire cluster
   - A good number to get started is 3 brokers, some big clusters have over 100 brokers
 
+
 ## **`Brokers and Topics`**
   - Example of Topic-A with 3 partitions and Topic-B with 2 partitions
   - Note: data is distributed, and broker 103 doesnt have any topic B data
   - ![](screenshots/2023-08-05-20-32-11.png)
+
 
 ## **`Kafka Broker Discovery`**
   - Each Kafka broker is also called a `bootstrap server`
     - means that `you only need to connect to one broker`, and the Kafka clients will know how to be connected to the entire cluster (smart clients)
     - ![](screenshots/2023-08-05-20-34-32.png)
   - Each broker knows about all brokers, topics and partitions (metadata)
+
 
 ## **`Topic Replication Factor`**
   - Topics should have a replication `factor > 1 (usually between 2 and 3)`
