@@ -77,7 +77,7 @@ Topics
   - You can not query topics, instead,
     - use Kafka Producers to send data
     - use Kafka Consumers to read data
-  ![](screenshots/2023-08-05-19-29-06.png)
+    - ![](screenshots/2023-08-05-19-29-06.png)
 
 ## **`Partitions and offsets`**
 - Topics are split in `partitions`(Ex: 100 partitions)
