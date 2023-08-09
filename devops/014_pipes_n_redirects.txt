@@ -1,0 +1,56 @@
+
+Commands. Input and output
+
+ PIPING ================================================
+The output from one command/program can become the input of another command
+  - you can chain the execution of Commands
+
+Ex:
+cmd1: cat /var/log/syslog
+cmd2: less
+  - less - displays the contents of a file or a command output. one page at a time
+
+to chain use "PIPE" Command: |
+
+Chained command: car /var/log/syslog | less
+
+other examples
+  ls /usr/bin | less
+
+  history | grep sudo
+      - return all command in history that has a sudo command in it
+
+    grep - Globally Search for Regular Expression and Print out
+        - Search for a particular pattern and filter out 
+
+  history | grep "sudo chmod" | less
+
+  cat Documents/java-app/config.yaml | grep ports
+
+
+REDIRECTION ================================================
+  - takes the output from the previous command and sends it to a file that you give.
+Ex:
+  history | grep sudo > sudo-commands.txt
+    - send the output of: history | grep sudo 
+      to sudo-commands.txt
+    > ---- THIS WILL OVERWRITE THE File
+    >> ---- THIS WILL APPEND TO THE FILE
+
+
+Standard Input and Standard output
+====================================
+Every program has 3 built in streams
+STDIN(0)  - Standard Input
+STDOUT(1) - Standard output
+STDERR(2) - Standard Error
+
+if command result in an error, ex display a file that does not exists
+  ls -l doesntexist
+  then it will display an error message in an standard error stream
+
+
+Execute independents commands, not sharing each other inputs and outputs, just one by one.
+  Use a semi colon to separate.
+  Ex:
+    clear; sleep 1; echo "Get good "

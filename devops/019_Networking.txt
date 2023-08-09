@@ -1,0 +1,204 @@
+Networking.
+
+LAN, Switch, Router
+
+LAN - local area network
+  - collection of devices connected together in one physical location
+  - Each device has a unique IP address
+  - device communicate via these IP address
+
+IP address example - 32 bit value
+Ex 172.16.0.0
+  - separeted by dots - octets
+  - 4 octets
+  0000 0000 (0) - 1111 1111 (255)
+
+Ip addresses can range from 0.0.0.0 to 255.255.255.255
+
+How do devices talk to each other
+  - task of a LAN device called Switch
+
+Switch
+  - sits within the LAN
+  - Facilitates the connection between all the devices within the LAN
+  - laptop can talk to a phone or a printer via a switch
+
+How to talk to devices outside LAN for example a server like facebook (server)?
+  - accessing any website
+  - for connecting outside of LAN it is the task of Router
+
+Router 
+  - sits between LAN and outside networks (WAN)
+  - connects devices on LAN and WAN
+  - allows networked devices to acess the internet  
+
+If you want to open facebook app on your phone
+1. Your phone will send a request to the router
+2. The router will send a request to the facebook server over the internet
+
+The IP address of the server is called - GATEWAY
+
+When a device in LAN sends a request to another device,
+How to know whether the other device is inside or outside the LAN.
+  - this is decided based on the IP address of the TARGET/DEST device
+  - devices in the LAN belong to same IP address range
+
+Subnet 
+  - logical subdivision of an IP network
+
+Subnetting 
+  - process of dividing a network into two or more networks
+
+Subnet Example
+  [1] 192.168.0.0
+    - IP address - starting point of IP range, the first IP in the range
+  [2] 255.255.255.0
+    - subnet mask - sets the range
+
+IP address range
+  range             ip address        subnet mask
+  starting point    192.168.0.X       255.255.255.0
+  end point         192.168.x.X       255.255.0.0
+
+Every IP that looks like these: 192.168.0.x - it belongs to the LAN
+  
+255.255.255.0 - means that 24(8 + 8 + 8) bits are fixed
+255.255.0.0 - means that 16 (8 + 8) bits are fixed
+
+Value 255 fixates the Octet
+Value 0 means free range
+
+Subnet Mask dictates how many bits are fixed
+
+CIDR - Classless Inter-Domain Routing > shorthand
+192.168.0.0/16 > /16 bits are fixed
+192.168.0.0/24 > /24 bits are fixed
+
+
+Lan Device(1) -> Switch -> Router -> internet
+Lan Device(2) ---/  |
+Lan Device(3) ------/
+
+
+Any device needs 3 pieces of data for communications
+  with other devices both within the LAN and outside devices
+1. IP adddress
+2. Subnet
+3. Gateway
+
+-------------------------------
+Network Address Translation (NAT)
+  > IP address range chosen by an administrator
+  > Each device gets a unique IP from that range
+
+How do we make sure that every network admin select the same range,
+and make sure that IP addresses dont overlap
+  > Ip adress within the LAN are NOT VISIBLE TO THE OUTSIDE NETWORK or internet
+
+Ex: send a request to facebook
+phone(192.168.1.10) -> Switch (192.168.1.1) -> Router (10.0.0.3) -> Facebook Server (69.63..176.13)
+  - 192.168.1.10 will be converted by the IP address of the router (10.0.0.3)
+  - NAT (Network Address Translation)
+    - key functionality of the router
+
+Benefits of NAT
+  1. security
+    > bc your IP address is not directly exposed
+  2. Reuse IP address
+    > 2 orgs can have the same IP address range within their local area network
+    > there are limited number of IPv4 addresses available 
+      > 2^32 or 4_294_957_296 public addresses
+
+What if an outside device wants to talk to your LAN directly
+  Ex. you have a server of your app, so you want to able to access requests outside the LAN
+  - by default these type of communication is not allowed because of the concept of Firewall
+  - server is not accessible from outside the LAN
+
+Firewall
+  - a system that prevent unauthorized accessed from entering a private network
+  - a set of rules that protect a network from unauthorized access
+  - using Firewall Rules you can define, which requests are allowed
+
+Firewall Rules
+  - which IP address in your network is accessible
+  - which IP address can access your server
+  - you can e.g. allow any device access your application
+
+EX:
+  Inbound
+  Type        Protocol      Port Range      Sources
+  SSH         TCP           22              178.191.162.12
+  Custom      TCP           3000            All IPv4
+  Custom      TCP           8081            All IPv4
+
+Port Range - which port is accessible on the server or the device you want to exposed
+
+Port
+  - each device has a set of ports (doors)
+    - you can unlock some doors so that guests can enter
+  - each device has a set of ports
+  - You can allow specific ports(doors) AND specific IP address (guests)
+  - Different applications listen on specific ports
+  - (Default) Standard ports for many applications
+    - port 80 - Web Servers - most web applications
+      - Ex: Request to FB server on port 80 
+    - port 3306 - MySQL db
+    - port 5432 - PostgresQL DB
+  - For every application you need a port
+  - Each port is unique on a device
+  - allows IP address at port to be accessed
+    - Port-Forwarding (Configuration)
+
+DNS - Domain Name Service
+  - every computer on the network is uniquely identified by IP address
+  - but when you visit facebook,
+    you request: www.facebook.com
+    not the ip address: https://69.63.175.13
+    > why ?
+    - bc. facebook.com runs on many computers which each have its own IP address
+    - humans are bettter in remembering words and names instead of numbers
+  - translates domain names to IP addresses
+
+How does DNS manage all these IP addresses
+  - DNS uses policy / Heirarchical structure
+  Root Domains
+  Top Level Domains
+    6 original TLDs
+      - .mil - military
+      - .edu - education
+      - .com - commercial, generic
+      - .org - non profit orgs
+      - .net - networking technologies, but today generic
+    geographical domains
+      - .de - germany
+      - .us - US
+      - .ph - ph
+  - you can buy a domain name
+  - who manages these names, who can sell these domain names, regulates by whomm
+    - Internet Corporation for Assigned Names and Numbers (ICANN)
+  
+Subdomains
+  
+How does the DNS Resolution work
+  - Every computer has a DNS client pre installed
+  - Resolve facebook.com or find the ip address mapped by facebook.com
+  - Will call the Resolver by the ISP 
+    - is IP address in Cache? 
+    - if yes return the IP
+    - if no, will go to one of the 13 root request Servers
+      - roots servers are redundantly available across the world
+
+DNS Entries are cached for efficiency
+
+Networking commands
+  ipconfig
+  netstat
+    - shows active connectiions in the machine
+    - which app are actively listening on ports
+  ps aux
+    - how much computer resources they are consuming
+  nslookup
+    - ip address of any domain name
+    - can do reverse check to check the domain name of ip address
+  ping
+    - check whether a service is accessible

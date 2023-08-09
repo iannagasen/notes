@@ -1,0 +1,193 @@
+Defacto for writing devops configs files
+
+Yaml
+  - is a data serialization language
+  - standard format to transfer data
+  - like xml and json
+  - .yaml, .yml
+
+yaml:
+  microservices:
+    - app: user-Authentication
+      port: 9000
+      version: 1.0
+
+xml:
+  <microservices>
+    <microservice>
+      <app>user-authentication</app>
+      <port>9000</port>
+      <version>1.0</version>
+    </microservice>
+  </microservices>
+
+json:
+  {
+    microservices: [
+      {
+        app: "user-authentication",
+        port: 9000,
+        version: "1.0"
+      }
+    ]
+  }
+
+
+
+yaml: strucuture using
+  - line separations
+  - spaces
+  - indentation
+
+yaml use cases:
+  - docker-compose
+  - ansible
+  - k8s
+
+
+--------------------------------
+Basic Syntax:
+
+1. key-value pairs
+>>  # this is a string, you can also enclose with quotes " or '
+    app: user-authentication      
+    port: 9000                    
+    version: 1.7
+  
+
+2. creating and grouping and object using indentations
+>>  # this is an object name microservice
+    microservice:
+      app: user-authentication
+      port: 9000
+      version: 1.7
+
+
+3. List
+>>  # this is a list name microservices with 1 (anonymous) object
+    microservices
+      - app: user-authentication
+        port: 9000
+        version: 1.7
+        # boolean values in yaml are true/false or can yes/no or can be on/off values
+        deployed: yes
+      - app: shopping-cart
+        port: 9002
+        versions: 
+        - 1.9
+        - 2.0
+        - 2.1
+      - app: payment-service
+        port: 9004
+        # for list of primitive types, you can use square brackets [] notation
+        versions: [3.6, 3.7, 3.8]
+
+
+4. Multiline string using pipe symbol
+>>  multilineString: |
+      this is a multiline string
+      and this is the next line
+      next line
+    interpretedAsSingleLine: >
+      this is a single line string,
+      that should be all on one line.
+      some other stuff
+
+
+5. Env variables
+  - access using a dollar sign
+>>  command:
+      - /bin/sh
+      - -echo
+      - >-
+        mysql -h 127.0.0.1 -u root -p$MYSQL_ROOT_PASSWORD -e 'SELECT 1'
+
+
+6. Placeholders
+  - using double curly braces
+  - replaces using template generators
+>>  apiVersion: v1
+    kind: Service
+    metadata:
+      name: {{ .Values.service.name }}
+    spec:
+      selector:
+        app {{ .Values.service.app }}
+      ports:
+        - protocol: TCP
+          port: {{ .Values.service.port }}
+          targetPort: {{ .Values.service.targetPort }}
+
+
+
+7. Multiple yaml components/documents
+  - separate using 3 dasher ---
+>>
+apiVersion: v1
+    kind: Service
+    metadata:
+      name: {{ .Values.service.name }}
+    spec:
+      selector:
+        app {{ .Values.service.app }}
+      ports:
+        - protocol: TCP
+          port: {{ .Values.service.port }}
+          targetPort: {{ .Values.service.targetPort }}
+
+---
+
+apiVersion: v1
+kind: Pod
+metadata: 
+  name: nginx
+  labels:
+    app: nginx
+data:
+  mosquito.conf: |
+    log_dest stdout
+    log_type all
+    log_timestamp true
+    listener 9001
+
+-------------------
+Sample K8s Configuration
+>>>>
+apiVersion: v1
+kind: Pod
+metadata: 
+  name: nginx
+  labels:
+    app: nginx
+data:
+  mosquito.conf: |
+    log_dest stdout
+    log_type all
+    log_timestamp true
+    listener 9001
+spec:
+  containers:
+  - name: nginx-container
+    image: nginx
+    ports:
+    - contaierPort: 80
+    volumeMounts:
+    - name: nginx-vol
+      mountPathL /usr/nginx/html
+    command:
+      - sh
+      - c
+      - |
+        #!/usr/bin/env bash -e
+        http() {
+          local path="${1}"
+          set -- -XGET -s --Facilitates
+          # some stuff here
+          curl -k "$@" "http://localhost:5601${path}"
+        }
+        http "/app/kibana"
+  
+  - name: sidecar-container
+    image: curlimages/curl
+    command: ["/bin/sh"]
+    args: ["-c", "echo Hello from the sidecar container; sleep 3000"]

@@ -1,0 +1,72 @@
+on servers you only have CLI. no gui
+
+ian@ian-ubuntu: ~$
+
+ian - username
+ian-ubuntu - computer name, for servers it will be the hostname
+: - seoarator
+~ - home directory
+$ - represennts that you are a regualar user,
+  - for root user, it should be #
+
+
+basic commands
+
+pwd = print working directory
+ls - list all folders
+cd <dir> - change directory
+mkdir <dir_name> - make directory
+
+file commands
+touch [filename] - create a file
+rm [filename] - remove a file
+rm -r [dir] - remove a directory
+  - -r -> recursive, remove all the contents of a directory
+
+navigate through root folder
+cd / 
+ root is represented by /
+
+Everything in linux is a file
+ - even directory is a file
+ - commands like pwd is a file represented by binaries
+ - Devices like printer, keyboard is represented by a file
+
+Navigating file systems through multiple layers
+
+Absolute path
+  - the full/complete path of the location
+  - it starts with root
+  - Ex: /etc/network
+
+mv - rename 
+
+history - list the command that you executed
+CTRL + R - Search history
+
+CTRL + SHIFT + C for copying
+CTRL + SHIFT + V for pasting
+
+cat [filename] - show contens of a filename
+
+uname -a = show OS information
+          = kernel etc
+cat /etc/os-release
+
+lscpu
+lsmem
+
+## Execute command as a superuser
+For example:
+  adduser admin
+    - adduser: Only root may add a user or group to the system
+  
+Use sudo:
+  Allow regular users to run programs with the security privileges of the superuser or root
+
+to check if the user is added
+  ls /home
+
+login as other user:
+  su - [username]
+  su - admin

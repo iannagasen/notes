@@ -1,0 +1,89 @@
+Linux File System
+  - Hierarchical tree structure
+  - 1 root folder (/)
+
+Windows File System
+  - multiple root folder (drives / disks)
+  - drive A: , drive B: , <--- removal disks
+  - drive C: <-- internal hard drive
+
+Every users will have a space in the /home directory
+except with the root user. 
+For the root user, it will have a separate space in the /root directory
+
+/bin
+  - binaries
+  - "executables" for most essential user commands
+  - cat - shows the contains of a file
+  - cp - copies a file
+  - echo - print
+
+  What is a binary
+    - a format computer understands (0 and 1)
+    - computer readable format
+    - thats why bin files are binaries
+
+/sbin
+  - system binaries
+  - system relevant commands, needs superuser permission/previlige
+  - administrator commands
+
+/lib
+  - library folders
+  - essential shared libraries that executables from /bin or /sbin use
+
+/usr
+  - user 
+  - this was used for user home directories (before it was edit)
+  - historic reasons, 
+    - because of storage limitations it was split to root binary folders and user binary folders
+    - now it was duplicated
+
+/usr/local
+  - programs that you install, 3rd party apps like docker, minikube, java
+  - system wide installation
+  - for example if you download java,
+    - its binaries will be stored in /usr/local/bin
+    - its libaries will be stored in /usr/local/lib
+
+/opt
+  - optional
+  - 3rd party / external applications will be installed
+  - storage for programs, which Not split its components into different directories
+    - for example, most IDE's like VSCODE, web browsers
+
+/boot
+  - for booting the system
+  - dont touch this
+  - contains file for booting
+
+
+/etc
+  - previously used as etcetera, but emerged into being main configuration location
+  - readable and writable configuration
+  - system configuration is stored
+    - could be network configs
+
+
+/dev
+  - devices - webcam,keyboard,usb,harddrive
+  - App and Drivers will access this, not users
+
+/var
+  - for storing logs in processes running in compute
+  /var/log
+  - log folder
+  /var/cache
+
+/tmp
+  - stores temporary files in diff applications
+  - at some point will be deleted
+
+/media
+  - removable media - external hard drive, CD or usb
+
+/mnt 
+  - temporary mounting of file systems
+
+
+Package Manager Tool or installer will updating the root folder, no you manually

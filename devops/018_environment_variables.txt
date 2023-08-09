@@ -1,0 +1,146 @@
+Multipler users on linux
+Each user
+  1. has its own environment
+  2. can confiugre its own environment/account by setting preferences (Defaults)
+  3. These OS configurations should be isolated from other user environments
+
+Where does OS store all these configurations
+  - Os store these informations in Environment VARIABLES
+
+Environment variables
+  - Key-value pairs
+  - variables are available for the whole environment
+  - by convention, Keys or names are defined in UPPER CASE
+    Ex.
+    1. SHELL=/bin/bash    - default shell program (location) of the user
+      can be user defined: SHELL=/bin/zsh
+    2. HOME=/home/ian     - current users home directory
+    3. USER=ian           - currently logged in user
+
+cmd to print environment variables
+printenv
+printenv | less
+
+# print the value of USER environment variables
+printenv USER
+
+# print all the values with a USER on it
+printenv | grep USER
+
+# You can reference a environment variable using a dollar sign $, 
+# You can also use this in bash script
+echo $USER
+
+
+
+=======================
+
+
+Application Environment Variables
+
+Use cases of env vars
+  1. OS stores info abt the environment
+
+  
+  2. we can create our own env var  -- senstive data for application
+    Why? 
+    Consider a java program in a linux server,
+      this app needs to connect to external app, say DB or API
+      for external app, usually it needs some authentication / credentials
+    How can we tell the java app in a secure way what are the secrets or credentials?
+      1. We can not add this to information in the code since this will be in plain text
+
+    SOLUTION is to add env var:
+      DB_PWD=secretpassword
+      DB_USER=mysqluser
+
+    By creating these env vars, we make them available in the environment
+
+    All apps and processes can now access these env vars
+
+  3. Make application more flexible
+    - DEV / TESTING / PROD server
+    - each DB will have its own credentials
+
+=======================
+
+Creating environment variables
+
+# Define a env var name DB_USERNAME
+export DB_USERNAME=db_user
+export DB_PASSWORD=secretpwdvalue
+export DB_NAME=db_name
+
+# Overwriting env var
+export DB_NAME=newdbname
+
+# Deleting env var
+unset DB_NAME
+
+NOTE: If you close the terminal and see the created environment variables,
+  printenv | grep DB
+  all of these will be deleted.
+
+So how can we create a file that will be permanently stored to the environment.
+
+1. In your home directory (/home/ian) open .bashrc
+  vim .bashrc 
+    - if you are using bash, .zshsrc if you are using zsh
+    - .bashrc is per-user shell specific configuration files
+    - E.g. if you are using Bash, you can declare the variables in the ~/.bashrc file
+    - variables set in this file are loaded whenever a bash login shell is entered
+
+2. add the following code
+export DB_USERNAME=db_user
+export DB_PASSWORD=secretpwdvalue
+export DB_NAME=db_name
+
+3. load the new env vars into the current shell session
+  source ~/.bashrc
+
+
+========================
+Persisting env vars (System Wide / System Variables)
+  - for all the users
+
+  ~/.bashrc - is user specific
+  /etc/environment - system variables
+      - Note /etc is for configurations
+      - PATH Env Variable
+        - list of directories of executable files, separated by ":"
+        - the way it works, is that, whenever we execute a command or a program in a command line interface,
+          the system checks all of the location configured in PATH variable to find the 
+          commands/programs/binary files and execute it from there
+
+        - for example using Java or python, we will have a binary file configured in the PATH variable
+
+        thanks for the Path variable:
+          we dont need to do: /usr/bin/ls -l
+          instead we can just do: ls -l
+
+          same as to python and java
+
+
+ ========================
+
+Add a custom command / program
+
+-- create the script
+vim welcome
+#!/bin/bash
+echo "Welcome to DevOps bootcamp $USER"
+
+-- add executable permission
+chmod a+x welcome
+
+-- add to Path Variable to environment Variable
+vim ~/.bashrc
+
+-- add this line, to apped to path
+PATH=$PATH:/home/ian
+
+-- refresh the current shell session
+source .bashrc
+
+-- test
+welcome

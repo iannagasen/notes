@@ -1,0 +1,128 @@
+SSH - secure shell
+
+- you have written shell script and copy to a remote server and execute it from there
+
+SSH 
+  - a network protocol that gives users a secure way to access a computer over the internet
+  - also refers to the suite of utilities that implement that protocol
+  - connect to the server securely over the internet
+
+2 ways to authenticate with a remote server over SSH
+  1. Using username and password
+    > lets say we have application server running remotely (onprem or cloud)
+    > usually a Server admin creates user on a remote server
+  2. SSH Key Pair
+    > client creates an SSH Key Pair
+    > Key Pair = Private Key + Public Key
+    > Keys are encrypted value of random hashes
+    > Private Key - Secret Key. Is stored securely on the client machine
+    > Public Key - can be shared, e.g. with the remote server
+      - Client machine for that public key can safely connect
+      - Client can unlock the public key with his private key
+
+Each team member will create their own ssh key pair on their machine,
+  Server admin can add the public ssh key of team members on the server
+  1. Now team member can connect to remote server by providing the private key
+
+
+============================
+SSH for services
+  Services, like Jenkins often need to connect to another server via SSH
+
+CI Server -----------(SSH)-------------> Remote Server
+
+1. Create Jenkins User on application server (remote server)
+2. Create SSH Key Pair on Jenkins server
+3. Add public SSH key to authorized_keys on application server
+  - this allows Jenkins to automatically connect tp app server via SSH
+
+Note: When one machine wants to connect to another machine,
+  the communication must explicitly allowed through Firewall rule,
+  otherwise it will be blocked.
+
+** SSH Authentication comes AFTER the connection
+
+Firewall always configure the specific port where the server accessible,
+  and then the port is always open for communications.
+
+  Most OS systems, SSH Service runs by default on machine,
+  and by default, SSH Server listens on port 22.
+
+  In Firewall Rule, we allow access on port 22
+
+Note in Firewall rule, we can configure the Source (who can access the server on this port)
+
+In case of web application, we want to allow everyone to access the port 22
+
+SSH connection is powerful and needs to be restricted to specific IP addresses
+  > you get access to the whole system and the CLI, mostly for admin configurations
+
+
+SSH in Action.
+1. Create a Remote Server on Cloud Platform
+
+2. Generate SSH Key Pair on our Laptop to be able to login without password
+
+
+  # On your machine, ssh [username]@[hostname]
+  ssh root@159.89.14.94
+
+  # add the password in the prompt
+
+
+  #### to login without password, create another command line
+
+  ls .ssh/
+    > ~/.ssh - the default location for the ssh key pair 
+
+  # generate ssh keypair on your machine
+  ssh-keygen -t rsa
+    > [rsa] - cryptographic algorithm
+    > save to ~/.ssh
+
+  # print the contents of the .ssh/
+  ls .ssh/
+    > id_rsa  id_rsa.pub
+    > id_rsa - private key
+    > id_rsa.pub - pubic key
+
+  # add the public key to the remote server
+  ls .ssh
+  cat .ssh/authorized_keys
+    > authorized_keys - where we want to add the public Keys
+  vim .ssh/authorized_keys
+
+  # on the remote server, copy contents of the public key
+  cat .ssh.id_rsa.pub
+
+  # add the copied public key to the remote servers .ssh/authorized keys
+
+  # exit from the server
+  exit
+
+  # on your machine, connect to the host again now without password
+  ssh root@159.89.14.94
+
+  # now check if host is in known_hosts in your local machine
+  ls .ssh/known_hosts
+
+  # command above is equivalent to, since the default is location of the private key is .ssh/id_rsa
+  ssh -i .ssh/id_rsa root@159.89.14.94
+
+  # for multiple key value ssh pairs, provide it explicitly
+  ssh -i .ssh/id_rsa2 root@159.89.14.94
+  
+  # ls .ssh/id_rsa
+
+
+3. Copy Bash Script File to the Remote Server (scp - Secure Copy)
+  vim test.sh
+  scp test.sh root@159.89.14.94:/root
+  # command above is similar to:
+  scp -i .ssh/id_rsa test.sh root@159.89.14.94:/root
+
+4. Execute Script File on Remote Server
+  ssh root@159.89.14.94
+  ls -l 
+  chmod u+x test.sh
+  ./test.sh

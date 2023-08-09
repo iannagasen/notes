@@ -1,0 +1,53 @@
+How to edit a file in the command line
+
+Built in Text Editor in Linux - integrated in command line
+  1. Vi - mostly installed in linux distros
+  2. Vim - may not available in other distros 
+
+Why not just use the GUI Editors?
+  
+  Use Cases to use text editor in CLI
+    - small modifications can be faster, especially when you are currently working in the CLI
+    - faster to create and edit at the same time
+    - Supports multiple formats
+    - When working on a remote server        
+    - Git CLI - writing the Git Commit Message
+    - Display K8s Configuration files
+
+Working with Vim Editor [Vim commands]
+
+2 Modes in Vim
+  1. Command Modes - default Modes
+    - ESC to enter command mode
+    - you cant edit the text
+    - whatever you type is interpreted as command
+    - Navigate, search, etc
+
+  2. Edit Mode
+    - press "i" to enter Insert/Edit Mode
+    - allows you to edit text
+    - press I to switch from Command Mode to Edit mode
+    - If you are done editing press Escape
+
+    To save changes
+    - type :wq which stands for w - write, q - quit
+
+    To discard the changes
+    - type :q! which stands for q - quit, ! - force
+
+
+Create a file using Vim
+  - vim [filename]
+
+useful keys in command mode:
+  - dd - delete line
+  - d10 d - delete next 10 lines
+  - u -undo
+  - A - jump to end of file
+  - 0 - jump to beginning of a file
+  - $ - end of line
+  - 12G - go to line 12
+  - /pattern - Search for pattern
+    - n - jump to next match
+    - N - jump in opposite direction
+  - :%s/old/new - find and replace old string to new string

@@ -1,0 +1,96 @@
+Shell vs Bash
+Shell program implementations
+Bash Scripting
+
+Shell Scripting
+  - avoid repetitive work
+  - Keep history of configuration
+  - share the instructions
+  - logic and bulk Operations
+
+Write commands in a file.
+Execute that file
+  ADV: File is moveable
+
+  Shell Script (.sh extension)
+
+What is a shell? 
+  - UNIX like systems
+  - The program that interprets and executes the various commands tha
+    we type in the terminal
+
+  - translates our command that the OS Kernel can understand
+    - convert into instructions
+  - command interpreter
+
+Different Shell implementations
+  -sh (Bourne Shell) - /bin/sh
+    - used to be the default shell
+    - Author: Stefan Bourn
+  - Bash (Bourne again shell) - /bin/Bash
+    - improve version of sh
+    - default shell program for most UNIX like systems
+  - zsh
+
+Shell and Bash terms are often used interchangeable
+  - Bash is a shell program
+  - Bash is a programming language
+
+How does OS know which shell to use
+  - we need to tell the OS!
+  - by a writing a Shebang line
+  #!/bin/sh   #!/bin/bash   #!/bin/zsh  
+  #! - Sharp + bang -- Shebang
+  #!/bin/bash -> /bin/bash is the location of the bash binary. 
+    - This can be different if you are using Git Bash in windows
+
+Exercise.
+  Creating a simple sh script
+  setup.sh =========================================
+  #!/bin/bash
+  
+  echo "setup and configure server"
+  ===================================================
+
+1. to run, you can use the universal method:
+  ./setup.sh
+    - note that this will not run, 
+    - Permission denied. Why? because we did not add an executable permission
+2. to check for permissions
+  ls -l setup.sh
+3. add an execution permission for owner
+  sudo chmod u+e setup.sh
+4. check the permission if applied,
+  ls -l setup.sh
+5. Run the file using either way
+  ./setup.sh
+  bash setup.sh
+
+
+
+VARIABLES ==============================================
+
+
+IF ELSE CONDITIONALS ===================================
+
+
+File Test operators ====================================
+  - test various properties to a file
+
+Number comparisons, relational operators
+  50 -ge 60
+  -ge greater than or equal
+
+String operators
+  user_group=xx
+  if [ $user_group == "ian" ]
+  then
+    ...
+  elif [ $user_group == "admin"]
+  then
+    ...
+  else
+    ...
+  fi
+
+Passing arguments to a script ======================

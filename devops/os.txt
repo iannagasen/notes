@@ -1,0 +1,88 @@
+Operating Systems
+
+components
+  1. CPU
+  2. memory
+  3. Storage
+  4. I/O device
+
+Apps dont know how to talk to the hardware
+App like browser cant be installed directly to the software 
+
+APP <----> OS <----> hardware
+OS - acts like a transalor, or middleware
+  - manages resources among applications
+  - isolates contents of applications
+
+What are OS tasks
+  1. Resource Allocation and Management
+    a. Process Management - CPU
+    What is a process - a small unit that executes in a computer
+      - each process has own isolated space
+    1 CPU - 1 process at a times - 1 task at a times
+  
+    b. Memory management - RAM - Rapid Access Memory
+      - RAM - working memory
+      - every app needs some data to work
+      - RAM is limited on the hardware
+      - Memory Swapping - when RAM  is full OS swaps memory between applications
+        - unload memory to Storage, get Storage to RAM
+        - will take some time
+      
+    c. Storage Management
+      - Secondary memory - storage - persisting the data long Term 
+      - data we want to save:
+        produced files, code.
+
+  2. Manage File System
+    - data are stored in a structure way - directory/folder
+    - in UNIX like systems, linux/MacOS - TREE FILE System
+    - Windows OS - multiple root folders
+
+  3. Management of IO devices
+    - mouses, keyboards
+
+  4. Security and Networking
+    - managing users and permissions
+    - each use has its own space
+    - each use has its permissions
+    - networking like assigning ports
+
+OS components
+
+1. Kernel 
+  - the part that loads first
+    - allocates resources to app for example
+  - Heart of every operating System
+  - Handle IO Devices
+    driver <-----> IO Devices
+  - Diff CPUs, diff Kernels
+  - Kernel is a program
+
+2. Application 
+  - Ex diff Linux distros
+    - Mint/Debian/Ubuntu/CentOS
+  - Android is also based on Linux Kernel
+
+  - MacOS and iOS are based from Darwin Kernel
+
+  - OS for servers are mostly based on Linux
+
+  - to interact with Kernel - GUI/continuously
+
+  
+User Apps <--> Application <--> Kernel <--> hardware
+Ex:
+  User Apps <--> Android <--> Linux Kernel <--> Hardware
+
+3 Main OS
+1. Linux
+2. Windows
+3. MacOS
+
+-- Each OS has many versions
+-- Kernel stays the same!! but the application layer is improving
+
+Linux and Windows have server distributions
+1. Client OS - GUI and I/O devices
+2. Server OS - NO GUI or I/O devices, More lightweight

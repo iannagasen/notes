@@ -1,0 +1,203 @@
+User Accounts
+Group & Ownership & File Permissions
+Linux Commands for Managing Users and their Permissions
+
+LINUX Accounts
+
+3 User Categories
+1. Superuser Account
+  - 1 root user per computer
+  - root user - unrestricted Permissions
+  - for administrative tasks: need to login as root, or execute command in sudo
+2. User Account
+  - A regular user we create to login
+  - each regular user will have a dedicated space, ian ==> /home/ian
+3. Service Account [SERVER]
+  - Relevant for Linux Server Distros
+  - Apache Server
+  - MySQL 
+  - eg. Mysql user will start mysql application
+  - each service user will have a dedicated account
+    - WHY??
+    - best practice for security
+    - each app is isolated in terms of permissions from each other and 
+      ensure better security
+
+  - run different services into dedicated users
+  - DONT RUN SERVICES WITH THE ROOT USER!
+
+Why do we need multiple standard users?
+1. Share computer
+  - Ex. Many companies use Windows for their employees
+  - usually employess can login to your account on every computer
+    - How does these work ? DOes every computer have a copy of all the Accounts
+    - For Windows: is able to centrally manage users
+      -  Admins add users to the system
+      - All computers are connected to this system
+        - When someone tries to login, OS checks it with the system
+        - Only access to your HOME folder
+    
+    - Linux Does not have the capability to centrally manage user
+      - User accounts are managed on that specific hardware
+      - Multipler Users on a Linux Server is important? Why?
+        - the need a NON ROOT user
+        - Permissions per team member
+        - Traceability - who did what on the system?
+      - Admin creates Users with Permissions
+
+
+GROUP & Permissions
+2 Level of Permissions
+  1. User Level
+    - Give permissions to User directly
+  2. Group Level
+    - Give permissions to the Group
+    - best way to manage many users
+    - adding/removing a user from a group to remove permissions
+
+
+
+Linux User Management in Practice
+
+Access Control Files
+  - /etc/passwd
+    - cat /etc/passwd list the format of users with password with a placeholder of x
+      [FORMAT] USERNAME:PASSWORD:UID:GID:GECOS:HOMEDIR:SHELL
+  - /etc/shadow
+  - /etc/group
+
+Add user
+  adduser [username]
+
+Change Password of a user:
+  sudo passwd [username]
+
+Switch User
+  su - isabel  ## su - switch user
+  su - ## switch to root user
+
+Create a new Group:
+  groupadd [groupname]
+
+
+Different User and Group Commands
+  adduser
+  addgroup
+  deluser
+  delgroup
+    - Interactive
+    - More User Friendly
+    - chooses conformant UID and GID values for you
+    - Creates a home directory with skeletal config automatically
+    - OR asks for input in interactive mode
+
+  useradd
+  groupadd
+  userdel
+  groupdel
+  
+    - you need to provide the infos yourself
+    - low-level utilities
+
+  use useradd and groupadd when executing using a script or in an automate way
+
+  use adduser and addgroup when executing manually
+
+Change primary group of a user
+  usermod [OPTIONS] <username>
+    - modify a user
+    - ex:  sudo usermod -g devops isabel
+
+NOTE: A user can have 1 primary group and multiple secondary group
+  - G option overwrites the all the list of secondary groups
+  sudo usermod -G admin 
+  -aG, -a append not overwrite the list of groups
+  sudo usermod -aG admin isabel
+
+Check the groups of a user
+  groups [username]
+
+
+Removing a user from a group
+  sudo gpasswd -d [username] [groupname]
+
+
+### File Permissions and Ownership
+User permissions are related to reading, writing, executing files
+
+Command to print files in a long listing format, including permissions
+ls -l 
+
+Ownership  <- -> Permissions
+Ownership - who owns the file/dir
+  each file has 2 owners
+    1. User
+    2. Owning group - the primary group of the user
+
+Command change ownership of a file:
+chown <username>:<groupname> <filename>
+
+Change the user only
+chown <username> <filename>
+
+Change the group only
+chown <groupname> <filename>
+
+Defining the file permissions:
+Example: 1 char - 3 chars - 3 chars - 3 chars
+  -rw-rw-r--
+  drwxrwxr-x
+1st character
+- regular file
+d directory
+c character device file
+l symolic link
+
+1st 3 char block: User Owner
+r Read
+w Write
+x Execute - Execute a script/Executable
+- no permission
+
+2nd 3 char block - User Group
+r Read
+w Write
+x Execute
+- permission
+
+3rd 3 char block - Others
+
+Modifying Permissions. chmod - Change mode - change permissions
+1st way: + add, - remove  
+  chmod -x <filename>
+    - remove the execute permission for all users
+  chmod g-w <filename>
+    - remove the write permission for the group users
+  chmod g+w <filename>
+    - add a write permission for the group users
+  chmod g=rwx <filename>
+    - give rwx permission to the group users
+  chmod o=r-- <filename>
+    - give read only permission to all the other users
+2nd way: numeric values
+  chmod 777 <filename> 
+    - give the owner 7 permission, the group 7 permission, others 7 permission
+  chmod 740 <filename>
+
+  Absolute Numeric Mode - google this
+  Number  Permission Type Symbol
+  0       No Permission   ---
+  1       Execute         --x
+  2       Write           -w-
+  3       Execute + Write -wx
+  4       Read            r--
+  5       Read + Execute  r-x
+  6       Read + Write    rw-
+  7       Read + W + X    rwx
+
+  flags:
+    -u : Owner/User
+    -g : Group
+    -o : Other
+    -a : Everyone
+

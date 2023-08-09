@@ -1,0 +1,41 @@
+Virtual machine
+
+What if you want to use Linux on Windows OS??
+
+With Virtualization
+  - No separate hardware needed
+  - You can add Linux OS on top of Windows OS thru Virtualization
+  - You can achieve using HYPERVISOR Technology
+
+Hypervisor allows hosting multiple virtual computers on a physical computers
+  - ex: VirtualBox by Oracle
+
+Virtual Machines are completely isolated.
+  - adv, because if something breaks inside VM, it doesnot affect the host machine
+
+Benefits of using a Virtual Machine
+  1. Learning and experiment
+  2. You don't endanger your main OS
+  3. Test your app on different OS
+
+Type 1 vs Type 2 Hypervisor
+Type1 - For Big Servers
+  - benefits for companies for their infrastructures
+    - Efficient usage of hardware resources
+    - users can choose any resource combination
+    - ABSTRACTION of the Operating System from the hardware
+      - w/o virtualization OS is tightly coupled to the hardware. One point of failure
+      - w/ virtualization OS as a portable file as Virutal Machine Image (VMI)
+        - all the apps(like database) and OS will be a file.
+        - since it is a file, you can have backups of your entire OS
+
+  With Virtualization, it is secure, portable and not dependent on the server
+
+Type2 - For PC - aka Hoster Hypervisor
+
+Virtual Machine has its own networking
+- completely isolated from host network
+
+if you scan devices from you home network
+ - you can see the virtual machine
+ - for security

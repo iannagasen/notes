@@ -1,0 +1,90 @@
+Software package 
+  - a compressed archive, containing all requred files
+  - depends on other software to run
+
+Package Manager 
+  - ensures the integrity and authenticity of the package
+  - manages and resolves all required dependencies
+  - Package manager knows where to install software across different /bin, /folder
+  - easy upgrading of the software
+  - 1 central place to install, upgrade, configure, remove software
+
+Package Manager is already included in every Linux Distribution
+in Ubuntu, there is APT, advance Package Tool
+
+  Debian based distros uses APT and APT-GET
+    - Ubuntu
+    - Debian
+    - Linux Mint
+
+  Red Hat based distros uses YUM
+    - RHEL (Red Hat Enterprise Linux)
+    - CentOS
+    - Fedora
+
+Command:
+  apt - this will show the help section
+
+  ## SEARCHING
+  apt search [package_name] - search a software package 
+    EX: apt search openjdk
+    - if not working, add sudo
+    - sudo apt search openjdk
+  PRO TIP: if you enter java command in terminal without java installed,
+  it will show you list of suggestions of software package you want to install
+
+  ## INSTALLING
+  sudo apt install [pkg_name_1] [pkg_name_2]
+  sudo apt install opendjdk-19-jre-headless
+  
+  ## UNINSTALLING 
+  sudo apt remove [pkg_name_1]
+
+## Difference of APT and APT-GET
+  apt is more user friendly that apt-get
+  search command is available in apt
+
+Where do these packages come from?
+  - Repositories
+    - storage location, containing thousands of programs
+
+PRO TIP: Before installing, always update the package index before upgrading or installing new packages
+  - sudo apt update
+    - this command refreshes the state of the repositories
+
+Alternative ways to install software
+  - There are packages, that are not available in these official repositories
+  - it may be available, but not the latest version
+  - Ex: Browsers, Code Editors, etc
+
+Alternatives:
+  1. Ubuntu Software Application
+    - uses Snap Package Manager
+  2. Snappy / Snap Package Manager
+    - self contained - dependencies contained in the package
+    - a snap is a bundle of an app and its dependencies
+    - snap store - provides a place for uploading snaps
+    - snapcraft - format of the file
+    - SNAP VS APT 
+      - Snap is self contained - dependencies contained in the package
+        - supports universal Linux packages (package type .snap)
+        - automatic updates
+        - larger installation size
+      - APT - dependencies are shared and distributed
+        - Only for specific Linux Distros (package type .deb)
+        - Manual updates
+        - Smaller installation size
+
+    - Use APT first, and if package not available use Snap
+  
+  3. Add Repository to official list of repositories
+    - add-apt-repository
+      - it will be added to /etc/apt/sources/list
+
+    When install relatively new applications, which are not in official repositories yet
+
+    - now if package is available now in a repository, you can now use apt install
+
+    PPA - Personal Package archive
+      - are provided by the community
+      - "personal" - not verified, be aware of possible risks
