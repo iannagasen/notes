@@ -502,7 +502,7 @@ Kafka Raft is prod ready since Kafka 3.3.1
    - ```bash
      kafka-storage.sh format -t <uuid> -c ~/kafka_2.13-3.5.1/config/kraft/server.properties
      ```
-3. Now you can launce the broker itself in daemon mode by running this command
+3. Now you can launch the broker itself in daemon mode by running this command
    - ```bash
      kafka-server-start.sh ~/kafka_2.13-3.5.1/config/kraft/server.properties
      ```
@@ -538,7 +538,7 @@ Kafka Raft is prod ready since Kafka 3.3.1
     - Delete a Kafka Topic
   - Creating first topic
     - ```bash
-      kafk-topics.sh --bootstrap-server localhost:9092 --topic first_topic --create
+      kafka-topics.sh --bootstrap-server localhost:9092 --topic first_topic --create
       ```
       - ![](screenshots/2023-08-07-22-28-55.png)
   - List all topics:
@@ -558,3 +558,36 @@ Kafka Raft is prod ready since Kafka 3.3.1
       kafka-topics.sh --bootstrap-server localhost:9092 --topic third_topic --create --partitions 3 --replication-factor 2
       ```
     - ![](screenshots/2023-08-07-22-37-55.png)
+
+
+## **`Kafka Console Producer CLI`**
+  - start producing topics
+  - ![](screenshots/2023-08-10-22-27-09.png)
+  - Produce to a topic (topic should already be created)
+    - ```bash
+      kafka-console-producer.sh --bootstrap-server localhost:9092 --topic first_topic
+      > Hello World
+      > My name is Conduktor
+      > I love Kafka
+      > ^C (<- Ctrl + C is used to exit the producer)
+      ```
+      - Everytime you press Enter, it will send a message to Kafka
+      - ^C to Quit sending message
+    - ![](screenshots/2023-08-10-22-30-15.png)
+  - `acks=all` property
+    - Specifies that all message should be acknowledge by all brokers
+    - ```bash
+kafka-console-producer.sh --bootstrap-server localhost:9092 --topic first_topic --producer-property acks=all
+      > some message that is acked
+      > just for fund
+      > hehe
+      ```
+    - ![](screenshots/2023-08-10-22-36-47.png)
+  - Producing to a non existing topic ❌
+    - ![](screenshots/2023-08-10-22-37-31.png)
+    - This will have an error at first, but after running, it will create the topic(auto created)
+      - verify by listing
+1. Producer without keys
+  - key will be null, data will be distributed across partitions
+2. Produce with keys
+  - same key will always go to the same partition
