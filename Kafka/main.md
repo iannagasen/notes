@@ -597,3 +597,96 @@ Kafka Raft is prod ready since Kafka 3.3.1
      >example key:example value
      >name:IAN
      ```
+
+---
+
+# **`KAFKA JAVA PROGRAMMING`**
+
+## **`SDK List of Apache Kafka`**
+  - Official SDK for Apache Kafka is the Java SDK
+  - Other languages (Community supported)
+    - Scala
+    - C
+    - C++
+    - Golang
+    - Python
+    - JavaScript
+    - ...
+
+## **`Java API - Basics`**
+  - **Create Producer Properties**
+    - ```java
+      Properties properties = new Properties()
+      properties.setProperty("bootstrap.servers", "127.0.0.1.9092"); 
+      // producer properties
+      properties.setProperty("key.serializer", StringSerializer.class.getName());
+      properties.setProperty("value.serializer", StringSerializer.class.getName());
+      ```
+    - for secure connection
+      - ![](screenshots/2023-08-10-23-17-57.png)
+  - **Create the Producer**
+    - ```java
+      // KafkaProducer<keyType, valueType> --> matches the Key and Value Serializer
+      KafkaProducer<String, String> producer = new KafkaProducer<>(properties);
+      ```
+  - **Create a Producer Record**
+    - ```java
+      ProducerRecord<String, String> producerRecord = 
+          new ProducerRecord<>("demo_java", "hello world");
+      ```
+      - `demo_java` => topic name
+      - `hello world` => value
+        - means produce a message with the value to the topic
+  - **Send data**
+    - ```java
+      producer.send(producerRecord);
+      ```
+  - **Flush and close the producer and block the until done -- synchronous**
+    - ```java
+      producer.flush();
+      producer.close();
+      ```
+  - **SAMPLE**
+    - ```java
+      Properties properties = new Properties();
+			properties.setProperty("bootstrap.servers", "127.0.0.1:9092");
+			properties.setProperty("key.serializer", StringSerializer.class.getName());
+			properties.setProperty("value.serializer", StringSerializer.class.getName());
+
+			// Create the Producer
+			// String, String => K, V ; must match the serializers for key and value
+			KafkaProducer<String, String> producer = new KafkaProducer<>(properties);
+			
+			// Create a Producer record
+			// hello world will be send to a topic named demo_top
+			ProducerRecord<String, String> producerRecord = new ProducerRecord<>("demo_topic", "hello world");
+
+			// Send Data
+			producer.send(producerRecord);
+
+			// tell the producer to send all data block until done -- synchronous
+			producer.flush();
+
+			// close the producer
+			producer.close();
+      ```
+
+## **`ISSUE AFTER RUNNING`**
+  - ```bash
+    2023-08-11T00:26:56.471+08:00  WARN 14876 --- [ad | producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=producer-1] Bootstrap broker 127.0.0.1:9092 (id: -1 rack: null) disconnected
+    2023-08-11T00:26:57.550+08:00  INFO 14876 --- [ad | producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=producer-1] Node -1 disconnected.
+    2023-08-11T00:26:57.551+08:00  WARN 14876 --- [ad | producer-1] org.apache.kafka.clients.NetworkClient   : [Producer clientId=producer-1] Connection to node -1 (/127.0.0.1:9092) could not be established. Broker may not be available.
+    ```
+  - Solution:
+    - ![](screenshots/2023-08-11-00-37-56.png)
+      - https://stackoverflow.com/questions/62256604/running-kafka-on-wsl-and-make-producer-on-windows/76325645#76325645
+    - 1. in Ubuntu WSL, run this to get the external interface IP
+      - ```bash
+        ip addr | grep eth0
+        ```
+    - 2. in your Windows, run this(as admin) to
+      - ```bash
+        netsh interface portproxy add v4tov4 listenport=9092 listenaddress=0.0.0.0 connectport=9092 connectaddress=XXX.XX.XX.XX 
+        ```
+      - where XXX.XX.XX.XX is the external interface IP from 1
+    - Re run application.
