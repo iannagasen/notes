@@ -563,6 +563,9 @@ Kafka Raft is prod ready since Kafka 3.3.1
 ## **`Kafka Console Producer CLI`**
   - start producing topics
   - ![](screenshots/2023-08-10-22-27-09.png)
+
+1. Producer without keys
+  - key will be null, data will be distributed across partitions
   - Produce to a topic (topic should already be created)
     - ```bash
       kafka-console-producer.sh --bootstrap-server localhost:9092 --topic first_topic
@@ -577,7 +580,7 @@ Kafka Raft is prod ready since Kafka 3.3.1
   - `acks=all` property
     - Specifies that all message should be acknowledge by all brokers
     - ```bash
-kafka-console-producer.sh --bootstrap-server localhost:9092 --topic first_topic --producer-property acks=all
+      kafka-console-producer.sh --bootstrap-server localhost:9092 --topic first_topic --producer-property acks=all
       > some message that is acked
       > just for fund
       > hehe
@@ -587,7 +590,10 @@ kafka-console-producer.sh --bootstrap-server localhost:9092 --topic first_topic 
     - ![](screenshots/2023-08-10-22-37-31.png)
     - This will have an error at first, but after running, it will create the topic(auto created)
       - verify by listing
-1. Producer without keys
-  - key will be null, data will be distributed across partitions
 2. Produce with keys
   - same key will always go to the same partition
+  - ```bash
+kafka-console-producer --bootstrap-server localhost:9092 --topic first_topic --property parse.key=true --property key.separator=:
+    >example key:example value
+    >name:IAN
+    ```
