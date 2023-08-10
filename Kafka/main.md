@@ -593,7 +593,7 @@ Kafka Raft is prod ready since Kafka 3.3.1
 2. Produce with keys
   - same key will always go to the same partition
   - ```bash
-kafka-console-producer --bootstrap-server localhost:9092 --topic first_topic --property parse.key=true --property key.separator=:
+    kafka-console-producer --bootstrap-server localhost:9092 --topic first_topic --property parse.key=true --property key.separator=:
     >example key:example value
     >name:IAN
     ```
