@@ -876,3 +876,48 @@ Output
     - number of partitions
     - key distribution
     - overall message throughput
+
+## **`Producer with Keys`**
+  - Send non null keys to the Kafka Topic
+  - Same key = same Partition ✔️
+  - ![](screenshots/2023-08-11-18-37-56.png)
+
+**Code**
+```java
+...
+// Outer loop is to produce multiple records with same key - 3 records in a key
+IntStream.range(0, 2).forEachOrdered(j -> {
+  log.info("Batch no.: " + j);
+  IntStream.range(0, 10).forEachOrdered(i -> {
+    String topic = "demo_topic";
+    String key = "id_" + i;
+    String value = "hello world " + i;
+    
+    ProducerRecord<String, String> producerRecord = new ProducerRecord<>(topic, key, value);
+    producer.send(producerRecord, (metadata, exception) -> {
+      if (exception == null) {
+        log.info("Key: %s | Partition: %s".formatted(key, metadata.partition()));
+      } else {
+        log.error("Error while producing", exception);
+      }
+    });
+  });
+
+  // add delay to separate the 3 batches
+  try {
+    Thread.sleep(500);
+  } catch (InterruptedException e) {
+    e.printStackTrace();
+  }
+});
+...
+```
+
+**Output**
+  - ![](screenshots/2023-08-11-19-00-32.png)
+  - Same Key = Same Partition
+  - key with: 
+    - 1, 3, 6 => Partition 0
+    - 2, 4, 5, 7, 9 => Partition 1
+    - 0, 8 => Partition 2
+  
