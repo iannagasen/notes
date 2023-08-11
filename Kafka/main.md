@@ -509,6 +509,11 @@ Kafka Raft is prod ready since Kafka 3.3.1
 4. Result: Kafka running on its own with KRaft mode, broker is running without Zookeeper
    - ![](screenshots/2023-08-06-18-12-44.png)
 
+SINGLE COMMAND
+```bash
+cluster_id=$(kafka-storage.sh random-uuid) && kafka-storage.sh format -t $cluster_id -c ~/kafka_2.13-3.5.1/config/kraft/server.properties && kafka-server-start.sh ~/kafka_2.13-3.5.1/config/kraft/server.properties
+```
+
 ## **`Kafka CLI`**
   - come bundled with the Kafka binaries
   - If you setupd the $PATH variable correctly:
@@ -690,3 +695,184 @@ Kafka Raft is prod ready since Kafka 3.3.1
         ```
       - where XXX.XX.XX.XX is the external interface IP from 1
     - Re run application.
+
+## **`Java Producer Callback`**
+  - Confirm the partition and offset the message was sent to using Callbacks
+  - Interesting behavior of StickyPartitioner
+  - Round Robin vs Sticky Partitioner
+    - ![](screenshots/2023-08-11-17-24-13.png)
+
+Sample Code:
+```java
+@Bean
+	public CommandLineRunner producerWithCallbacks() {
+		return args -> {
+			log.info("Im a Kafka Producer");
+
+			Properties properties = new Properties();
+			properties.setProperty("bootstrap.servers", "127.0.0.1:9092");
+			properties.setProperty("key.serializer", StringSerializer.class.getName());
+			properties.setProperty("value.serializer", StringSerializer.class.getName());
+
+			KafkaProducer<String, String> producer = new KafkaProducer<>(properties);
+			
+			ProducerRecord<String, String> producerRecord = new ProducerRecord<>("demo_topic", "hello world");
+
+			// Producer with callback, Callback is called onCompletion
+			// Callback is executed everytime a records is:
+			// 		- successfully sent
+			// 		- exception is thrown
+			producer.send(producerRecord, (metadata, exception) -> {
+				if (exception == null) { // record is successfully sent
+					printMetadata((metadata));
+				} else {
+					log.error("Error while producing", exception);
+				}
+			});
+
+			producer.flush();
+			producer.close();
+		};
+	}
+
+	public void printMetadata(RecordMetadata m) {
+		log.info(
+			"""
+			Received new metadata 
+			Topic: %s
+			Partition: %s
+			Offset: %s
+			Timestamp: %s
+			"""
+			.formatted(m.topic(), m.partition(), m.offset(), m.timestamp())
+		);
+	}
+```
+
+Output:
+  - ![](screenshots/2023-08-11-17-40-22.png)
+  - Partition which record was sent to may be random 
+
+
+**Producing Multiple Message**
+```java
+	@Bean
+	public CommandLineRunner producerWithCallbacks() {
+		return args -> {
+			log.info("Im a Kafka Producer");
+
+			Properties properties = new Properties();
+			properties.setProperty("bootstrap.servers", "127.0.0.1:9092");
+			properties.setProperty("key.serializer", StringSerializer.class.getName());
+			properties.setProperty("value.serializer", StringSerializer.class.getName());
+
+			KafkaProducer<String, String> producer = new KafkaProducer<>(properties);
+			
+			// Producing Multi Message
+			IntStream.range(0, 10).forEach(i -> {
+				ProducerRecord<String, String> producerRecord = 
+						new ProducerRecord<>("demo_topic", "hello world" + i);
+
+				producer.send(producerRecord, (metadata, exception) -> {
+					if (exception == null) { // record is successfully sent
+						printMetadata((metadata));
+					} else {
+						log.error("Error while producing", exception);
+					}
+				});
+			});
+			
+			producer.flush();
+			producer.close();
+		};
+	}
+```
+
+Output: 
+  - ![](screenshots/2023-08-11-17-52-01.png)
+  - `Note`: Partition stays the same 
+    - in the screenshot, partition is always the same
+    - Partition is all the same for all messages/records
+    - it is called **`STICKY PARTITIONER`**
+      - If you send 10 messages `very quickly`,
+        - producer is smart enough to batch all in the same partition
+        - for performance improvement
+          - instead of 1 message is to 1 partition
+      - to determine that it uses the Sticky Partitioner:
+        - See logs for **`partitioner.class`**, it should be null, and by default
+        - ![](screenshots/2023-08-11-17-57-42.png)
+
+
+**Producer with Multiple Message And Multiple Batches**
+```java
+  @Bean
+	public CommandLineRunner producerWithCallbackAndMultipleMessageUsingBatching() {
+		return args -> {
+			log.info("Im a Kafka Producer");
+
+			Properties properties = new Properties();
+			properties.setProperty("bootstrap.servers", "127.0.0.1:9092");
+			properties.setProperty("key.serializer", StringSerializer.class.getName());
+			properties.setProperty("value.serializer", StringSerializer.class.getName());
+
+			// Set a batch a size - no. of records that a Producer sends in a single batch to the broker
+			properties.setProperty(ProducerConfig.BATCH_SIZE_CONFIG, "400");
+
+			KafkaProducer<String, String> producer = new KafkaProducer<>(properties);
+			
+			// Outer loop - for batching 1 batch = 30 records batch into 1 partition
+			IntStream.range(0, 10).forEachOrdered(j -> {
+				// Inner Loop - Since this is done very quickly
+				// Kafka treat this as a batch - STICKY PARTITIONING
+				IntStream.range(0, 30).forEach(i -> {
+					ProducerRecord<String, String> producerRecord = 
+					  new ProducerRecord<>("demo_topic", "hello world" + i);
+					producer.send(producerRecord, (metadata, exception) -> {
+						if (exception == null) { 
+							printMetadata((metadata));
+						} else {
+							log.error("Error while producing", exception);
+						}
+					});
+				});
+
+				// add delay, this is to make Kafka will not batch the next 30 records/message
+				try {
+					Thread.sleep(500);
+				} catch (InterruptedException e) {
+					log.error("Error: ", e);
+				}
+			});
+
+			producer.flush();
+			producer.close();
+		};
+	}
+```
+
+Output
+  - ![](screenshots/2023-08-11-18-23-51.png)
+  - If you see, there are only 3 partitions running (0, 1, 2)
+    - these is set in the broker `config/server.properties`
+    - by default no. of partitions is set to 3
+
+**RoundRobin Partitioner**
+  - not recommended
+  - this will make messages go to different partitions for every batch
+  - ```java
+    properties.setProperty("partitioner.class", RoundRobinPartitioner.class.getName())
+    ```
+
+## **`Sticky Partitioner`**
+  - strategy often used in Kafka to ensure that records with the same key are consistently sent to the same partition
+  - important for maintaining the order and consistency of data related to a specific key
+    - it ensures that all records with the same key end up in the same partition and are processed in order.
+  - Sticky Partioning and Batch Size
+    - comes into play when the producer is sending batches of records with the same key
+    - When sticky partitioning is applied and records with the same key are sent in batches
+      - it increases the likelihood that all records within a batch will be routed to the same partition
+      - enhance the effectiveness of sticky partitioning and maintain the desired order and consistency for records with the same key.
+  - Effectiveness of sticky partitioning can be influenced by factors such:
+    - number of partitions
+    - key distribution
+    - overall message throughput
