@@ -995,3 +995,60 @@ Output
     - Once done, Kafka will commit what offset is the latest
   - ![](screenshots/2023-08-11-19-46-30.png)
     - Read from what the committed offset
+
+
+## **`Kafka Consumer - Graceful shutdown`**
+  - Ensure we have code in place to respond to termination signals
+  - Improve our Java cod
+  
+Code
+```java
+...
+KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
+
+// get a reference for the main thread
+final Thread mainThread = Thread.currentThread();
+
+// adding the shutdown hook - trick to exit the while loop
+// basically just a listener - "onShutdown" ^C
+Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+  log.info("Detected a shutdown, lets exit by calling consumer.wakeup()...");
+
+  // Trigger a wake up exception in the while(true) loop
+  consumer.wakeup();
+  
+  // join the main thread to allow the execution of the code in the main thread
+  try {
+    mainThread.join();
+  } catch (InterruptedException e) {
+    log.error("ERROR: ", e);
+  }
+}));
+
+try {
+  consumer.subscribe(List.of(topic));
+  while (true) {
+    log.info("Polling");
+		// consumer.poll() will trigger the WakeUpException
+    ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));
+    records.forEach(rec -> {
+      log.info(
+        "Key: %s, Value: %s, Partition: %s, Offset: %s"
+        .formatted(rec.key(), rec.value(), rec.partition(), rec.offset())
+      );
+    });
+  }
+} catch (WakeupException e) {
+  log.info("Consumer is starting to shut down");
+} catch (Exception e) {
+  log.error("Unexpected Exception", e);
+} finally {
+  // close the consumer - this will also commit offsets
+  consumer.close();
+  log.info("The consumer is now gracefully shutdown");
+}
+...
+```
+
+Output:
+  - ![](screenshots/2023-08-11-21-35-00.png)
