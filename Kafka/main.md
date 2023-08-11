@@ -881,6 +881,10 @@ Output
   - Send non null keys to the Kafka Topic
   - Same key = same Partition ✔️
   - ![](screenshots/2023-08-11-18-37-56.png)
+  - refers to a producer that sends messages to a Kafka topic while assigning a key to each message
+    - key is a way to control how the messages are distributed among the partitions of the topic
+    - when a key is provided:
+      - Kafka's paritioning mechanism ensures that all messages with the same key are sent to the same partition
 
 **Code**
 ```java
