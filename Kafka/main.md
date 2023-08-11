@@ -925,3 +925,73 @@ IntStream.range(0, 2).forEachOrdered(j -> {
     - 2, 4, 5, 7, 9 => Partition 1
     - 0, 8 => Partition 2
   
+
+## **`Java Consumer: Java API - Basics`**
+  - receive data from Kafka
+  - Basic Configuration
+  - Confirm the data is received
+  - ![](screenshots/2023-08-11-19-16-23.png)
+
+Code:
+```java
+@Bean
+public CommandLineRunner kafkaConsumer() {
+  return args -> {
+    Properties props = new Properties();
+
+    String groupId = "ian-application";
+    String topic = "demo_topic";
+    
+    // Producer Config
+    // Producer -> Serialize to a lightweight format suitable for transportation (bytes)
+    props.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092");
+    props.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+    props.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+
+    // Consumer Config 
+    // Consumer -> Deserialize bytes to a readable format (String)
+    props.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+    props.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+
+    props.setProperty(ConsumerConfig.GROUP_ID_CONFIG, groupId);
+
+    // auto.offset.reset - 
+    // possible values:
+    // 	-	none - if we have no existing consumer group -> FAIL. need to setup consumer group before starting up
+    // 	- earliest - read from the beginning of topic
+    // 	- latest - read the new message from now
+    props.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+
+    try (KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props)) {
+      // subscribe to a topic
+      consumer.subscribe(List.of(topic));
+
+      // poll for data (infinitely for now)
+      while (true) {
+        log.info("Polling");
+
+        // pass a duration - how long are we willing to wait for data
+        // reset when data is received
+        ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));
+        
+        records.forEach(rec -> {
+          log.info(
+            "Key: %s, Value: %s, Partition: %s, Offset: %s"
+            .formatted(rec.key(), rec.value(), rec.partition(), rec.offset())
+          );
+        });
+      }
+    }
+
+  };
+}
+```
+
+Output
+  - ![](screenshots/2023-08-11-19-45-35.png)
+  - ![](screenshots/2023-08-11-19-46-08.png)
+    - Reading the messages previously produced
+    - Once you consumed data, you cannot reconsume it
+    - Once done, Kafka will commit what offset is the latest
+  - ![](screenshots/2023-08-11-19-46-30.png)
+    - Read from what the committed offset
