@@ -1075,3 +1075,86 @@ Output:
         - In this case, since 3 consumers / 3 partitions
           - it is most likely that each consumer will have 1 partition that they will read on
       - Kafka will assigned what partition can a consumer will read
+
+## **`Partition Rebalance on Consumer Groups`**
+  - **`REBALANCE`** 
+    - Moving and assigning between consumers
+  - Happens when:
+    - consumer leaves or join a group
+    - admin adds a new partition into a topic
+      - remember: partition count is configured in the broker
+  - `Type of Rebalance`:
+    - **EAGER REBALANCE**
+      - Default behavior
+      - When a rebalance is triggered:
+        - REVOKE ALL - all consumers stop and give up their membership of partitions
+        - ASSIGN ALL - all consumers rejoin group and get a new partition assignment
+      - During a short period of time, the entire consumer group stop processing
+      - Consumers dont necessarily "get back" the same partition they are listening to previously
+    - **COOPERATIVE REBALANCE / INCREMENTAL REBALANCE**
+      - When a rebalance is triggered:
+        - Reassigning a small subset of the partitions from one consumer to another
+      - Other consumers that dont have reassigned partitions can still process, uninterrupted
+      - Can go through several iterations to find a `stable` assignment - hence INCREMENTAL
+      - ![](screenshots/2023-08-12-15-06-24.png)
+  - `Asigning Strategies` in Kafka Consumer with key = **`partition.assignment.strategy`**
+    - ![](screenshots/2023-08-12-15-29-04.png)
+      - `partition.assignment.strategy` takes an array
+    - **EAGER STRATEGIES**
+      - **RangeAssignor**
+        - Default
+        - assign partition on a per-topic basis (can lead to imbalance)
+        - `partition.assignment.strategy=RangeAssignor`
+      - **RoundRobin**
+        - assign partitions across all topics in round-robin fashion (Optimal Balance)
+        - `partition.assignment.strategy=RoundRobin`
+      - **StickyAssignor**
+        - balance like RoundRobin, and then minimizes partition movement when consumer join / leave the group
+    - **COOPERATIVE STRATEGY**
+      - rebalance strategy is identical to StickyAssignor but supports cooperative rebalances
+        - consumer can keep on consuming from the topic
+      - Kafka Connect - already implemented and enabled by default
+      - Kafka Streams - turned on by default using `StreamsPartitionAssignor`
+      - Sampe Code
+        - ```java
+          props.setProperty(ConsumerConfig.PARTITION_ASSIGNMENT_STRATEGY_CONFIG, CooperativeStickyAssignor.class.getName());
+          ```
+      - Output
+        - ![](screenshots/2023-08-12-15-32-41.png)
+        - ![](screenshots/2023-08-12-15-33-15.png)
+
+Sequence Diagram
+```mermaid
+sequenceDiagram
+    participant ConsumerGroup as Consumer Group
+    participant Broker as Kafka Broker
+    participant ConsumerInstance1 as Consumer Instance 1
+    participant ConsumerInstance2 as Consumer Instance 2
+    participant ConsumerInstance3 as Consumer Instance 3
+
+    ConsumerGroup ->> Broker: Rebalance Request
+    Broker -->> ConsumerInstance1: Partition Assignment
+    Broker -->> ConsumerInstance2: Partition Assignment
+    Broker -->> ConsumerInstance3: Partition Assignment
+    ConsumerInstance1 -->> ConsumerGroup: Assigned Partitions
+    ConsumerInstance2 -->> ConsumerGroup: Assigned Partitions
+    ConsumerInstance3 -->> ConsumerGroup: Assigned Partitions
+```
+
+
+## **`Static Group Membership`**
+  - by default:
+    - when a consumer leaves a group
+      - its partitions are revoked and re-assigned
+    - if it joins back
+      - it will have a new `member ID` and new partitions assigned
+  - If you specify a **`group.instance.id`** 
+    - it makes the consumer a **`static member`**
+    - upon leaving:
+      - consumer has up to **`session.timeout.ms`** to join back
+        - if it joins before the timeout
+          - it gets back ist partition, **without triggering a rebalance**
+        - else 
+          - they will be reassigned
+    - helpful when:
+      - preserve local state and optimize performance by avoiding unnecessary rebalancing and cache rebuilding.
