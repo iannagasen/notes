@@ -1172,3 +1172,35 @@ sequenceDiagram
           - they will be reassigned
     - helpful when:
       - preserve local state and optimize performance by avoiding unnecessary rebalancing and cache rebuilding.
+
+## **`Kafka Consumer - Auto Offset Commit Behavior`**
+
+  - In the Java Consumer API, offsets are automatically committed to Kafka at regular intervals.
+  - This automatic offset commit behavior ensures **at-least-once** reading semantics by default, under specific conditions.
+
+  - **Offset Commit Triggers:**
+    - Offsets are committed when:
+      - The `Consumer::poll` method is invoked to fetch messages.
+      - The `auto.commit.interval.ms` time specified in the configuration elapses.
+
+  - **Example:**
+    - For instance, setting `auto.commit.interval.ms=5000` and `enable.auto.commit=true` configures automatic commits every 5 seconds.
+
+  - **Caution:**
+    - It's crucial to ensure that messages are successfully processed before calling **`poll()`** again.
+      - Failure to do so might compromise the **at-least-once** reading guarantee.
+
+  - **Manual Offset Control:**
+    - In certain scenarios, it might be necessary to have more control over offset commits.
+    - To achieve this, you can:
+      - Disable `enable.auto.commit=true`.
+      - Process messages in a separate thread for finer control.
+      - Periodically call **`.commitSync()`** or **`.commitAsync()`** with accurate offsets.
+    - This approach is particularly useful for maintaining custom offset management strategies and enhancing fault tolerance.
+
+  - **Important Concepts:**
+    - **At-Least-Once Reading:** Ensures that messages are read from Kafka at least once, enhancing data reliability.
+    - **Offset Management:** Keeping track of the last successfully processed message's position in a Kafka partition.
+    - **Manual Commit:** Explicitly committing offsets at specific points in the processing flow.
+    - **Auto-Commit Interval:** The time interval between automatic offset commits, defined by `auto.commit.interval.ms`.
+
