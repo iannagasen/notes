@@ -1133,14 +1133,28 @@ sequenceDiagram
     participant ConsumerInstance3 as Consumer Instance 3
 
     ConsumerGroup ->> Broker: Rebalance Request
-    Broker -->> ConsumerInstance1: Partition Assignment
-    Broker -->> ConsumerInstance2: Partition Assignment
-    Broker -->> ConsumerInstance3: Partition Assignment
+    Broker -->> ConsumerInstance1: Fetch Member Metadata
+    Broker -->> ConsumerInstance2: Fetch Member Metadata
+    Broker -->> ConsumerInstance3: Fetch Member Metadata
+    ConsumerInstance1 ->> Broker: Member Metadata
+    ConsumerInstance2 ->> Broker: Member Metadata
+    ConsumerInstance3 ->> Broker: Member Metadata
+    Broker ->> Broker: Cooperative Sticky Assignment
+    Broker -->> ConsumerInstance1: Assigned Partitions
+    Broker -->> ConsumerInstance2: Assigned Partitions
+    Broker -->> ConsumerInstance3: Assigned Partitions
     ConsumerInstance1 -->> ConsumerGroup: Assigned Partitions
     ConsumerInstance2 -->> ConsumerGroup: Assigned Partitions
     ConsumerInstance3 -->> ConsumerGroup: Assigned Partitions
 ```
+1. The ConsumerGroup sends a rebalance request to the Kafka Broker due to changes in the group's members or subscriptions.
+2. Each ConsumerInstance fetches and sends its member metadata to the Broker.
+3. The Broker collects member metadata from all instances.
+4. The Broker invokes the Cooperative Sticky Assignor algorithm, which considers the historical assignment and previous metadata.
 
+5. The Broker assigns partitions to each ConsumerInstance using the Cooperative Sticky Assignor's logic.
+6. Each ConsumerInstance receives its partition assignment from the Broker.
+7. The ConsumerInstances acknowledge their assigned partitions back to the ConsumerGroup.
 
 ## **`Static Group Membership`**
   - by default:
