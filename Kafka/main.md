@@ -1052,3 +1052,26 @@ try {
 
 Output:
   - ![](screenshots/2023-08-11-21-35-00.png)
+
+## **`Kafka Consumer - Consumer Groups`**
+  - behavior of consumer inside consumer groups
+  - Make consumer in Java consume data as part of a consumer group
+  - Observer partition rebalance mechanisms
+  - ![](screenshots/2023-08-12-11-59-15.png)
+  - Run two consumers with same group ID
+    - Consumer 1:
+      - ![](screenshots/2023-08-12-13-00-10.png)
+    - Consumer 2:
+      - ![](screenshots/2023-08-12-13-00-30.png)
+    - Group Rebalancing
+      - When a consumer enters with in a Consumer Group (Consumers with same group ID)
+      - Kafka rebalance the distribution of incoming partitions
+      - In the Ex above(Kafka has 3 partitions = was set in the server.properties in the broker) 
+        - Consumer 1 handles partition 0 and 1
+        - Consumer 2 handles partition 2
+      - If there are 3 consumers in a consumer group:
+        - Suppose another consumer enters the consumer group
+        - Kafka will detect and inform all the consumers the partition distribution
+        - In this case, since 3 consumers / 3 partitions
+          - it is most likely that each consumer will have 1 partition that they will read on
+      - Kafka will assigned what partition can a consumer will read
