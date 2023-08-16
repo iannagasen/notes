@@ -40,7 +40,9 @@ class Synchronous implements Reader {
     - Reactor for Project Stream
   - De Facto standard -> The `Reactive Streams` initiative
   - It defines 4 types
-    - Publisher
+    - **`Publisher<T>`**
+      - a producer of values that may eventually arrive
+      - a `Publisher<T>` produces values of type `T` to a `Subscriber<T>`
       - ```java
         package org.reactivestreams
 
@@ -48,7 +50,10 @@ class Synchronous implements Reader {
           void subscribe(Subscriber<? super T> s)
         }
         ```
-    - Subscriber
+    - **`Subscriber<T>`**
+      - subscribes to a Publisher<T>
+      - receives notifications on any new values of type `T` through its `onNext()`
+      - if errors are called, `onError(Throwable)` is called
       - ```java
         public interface Subscriber<T> {
           void onSubscribe(Subscription s);
@@ -57,16 +62,51 @@ class Synchronous implements Reader {
           void onComplete();
         }
         ```
-    - Subscription
+    - **`Subscription`**
+      - When a `Subscriber` first connects to a `Publisher`
+        - it is given a `Subscription` in the `Subscriber::onSubscribe`
+      - `Subscription` enables `backpressure`
+        - Subscriber uses:
+          - `Subscription::request` method to request more data, `long n` more times, or Long.MAX_VALUE which is effective unlimited
+          - `Subscription::cancel` to halt the processing
       - ```java
         public interface Subscription {
           void request(long n);
           void cancel();
         }
         ```
-    - Processor
+    - **`Processor`**
       - ```java
         public interface Processor<T, R> extends Subscriber<T>, Publisher<R> {
-          
+
         }
         ```
+  - UML Diagram
+
+    - ```mermaid
+      classDiagram
+          class Publisher {
+              +subscribe(s)
+          }
+          class Subscriber {
+              +onSubscribe(s)
+              +onNext(t)
+              +onError(t)
+              +onComplete()
+          }
+          class Subscription {
+              +request(n)
+              +cancel()
+          }
+          class Processor {
+              +onSubscribe(s)
+              +onNext(t)
+              +onError(t)
+              +onComplete()
+          }
+
+          Publisher --|> Subscriber : implements
+          Processor --|> Subscriber : implements
+          Processor --|> Publisher : implements
+          Subscriber --|> Subscription : has
+      ```
