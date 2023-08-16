@@ -110,3 +110,31 @@ class Synchronous implements Reader {
           Processor --|> Publisher : implements
           Subscriber --|> Subscription : has
       ```
+
+### The Reactive Streams Specifications
+  - Components
+    - Publisher
+      - broadcasts data of type T to a Subscriber
+    - Subscriber
+      - As soon as Subscriber subscribes, it receives a Subscription
+      - uses Subscription to request more data
+      - Subscriber(NOT Publisher) controls the flow of the data, the rate of processing
+        - Publisher will not produce more data than the ammount for which the subscriber has asked
+    - Subscription 
+      - is a link between producer and consumer, the Publisher and Subscriber
+      - new Subscriber instances create new Subscription instances
+      - allows the subscriber to request more data when its ready to process the data - `FLOW CONTROL - aka BACKPRESSURE`
+  - Related techs
+    - Message Queues like Apache Kafka, or Rabbit MQ
+      - MQs are critical component of Distributed Systems
+        - They ensure that decoupled components remain alive by buffering the messages
+          - Message Buffering - stores the message until consumer is ready to process them
+          - This allows consumers to consume the messages as they can, and no faster
+        - This regulated consumption of data is `flow control`
+    - Network Programming using TCP/IP or UDP
+        - 
+### Why try-catch is bad for reactive programming
+  - it is synchronous by nature
+    - try catch blocks the execution
+  - reactive programming is asynchronous
+    - it needs the data to be flowing continously
