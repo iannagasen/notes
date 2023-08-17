@@ -187,3 +187,27 @@ public class SimpleFluxFactoriesTest {
   }
 }
 ```
+
+### Conversion From Reactive Stream types to Jdk Flow types
+```java
+public class FlowAndReactiveStreamsTest {
+  
+  @Test
+  public void conver() {
+
+    // demonstrates converting to and from Reactive Streams types with the Reactive Streams conversions
+    // Flow is define by JDK
+    // FlowAdapter is use to convert from Jdk Flow.Publisher to Reactive Streams Publisher
+    Flux<Integer> original = Flux.range(0, 10);
+    Flow.Publisher<Integer> rangeOfIntegersASJdk9Flow = FlowAdapters.toFlowPublishers(original);
+    Publisher<Integer> rangeOfIntegersASReactiveStream = FlowAdapters.toPublisher(rangeOfIntegersAsJdk9Flow);
+    StepVerifier.create(original).expectNextCount(10).verifyComplete();
+    StepVerifier.create(rangeOfIntegersAsReactiveStream).expectNextCount(10).verifyComplete();
+
+    // demonstrates converting to and from Reactor FLux<T> and Mono<T> using Reactor conversions
+    Flux<Integer> rangeOfIntegersAsReactorFluxAgain = JdkFlowAdapter.flowPblisherToFlux(rangeOfIntegersAsJdk9Flow);
+    StepVerifier.create(rangeOfIntegersAsReactorFluxAgain).expectNextCount(10).verifyComplete();
+  }
+    
+}
+```
