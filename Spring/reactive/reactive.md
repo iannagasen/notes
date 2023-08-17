@@ -113,17 +113,21 @@ class Synchronous implements Reader {
 
 ### The Reactive Streams Specifications
   - Components
-    - Publisher
+    - `Publisher`
       - broadcasts data of type T to a Subscriber
-    - Subscriber
+    - `Subscriber`
       - As soon as Subscriber subscribes, it receives a Subscription
       - uses Subscription to request more data
       - Subscriber(NOT Publisher) controls the flow of the data, the rate of processing
         - Publisher will not produce more data than the ammount for which the subscriber has asked
-    - Subscription 
+    - `Subscription` 
       - is a link between producer and consumer, the Publisher and Subscriber
       - new Subscriber instances create new Subscription instances
       - allows the subscriber to request more data when its ready to process the data - `FLOW CONTROL - aka BACKPRESSURE`
+    - `Processor`
+      - Acts as a bridge, implementing both Publisher<T> and Subscriber<T>
+      - It is a `producer` and a `consumer`, a `source` and a `sink`
+    - `FlowAdapters` - a concrete class that helps adapt Reactive Streams types interchangeably to and from the Java 9 Flow analogs
   - Related techs
     - Message Queues like Apache Kafka, or Rabbit MQ
       - MQs are critical component of Distributed Systems
@@ -138,3 +142,48 @@ class Synchronous implements Reader {
     - try catch blocks the execution
   - reactive programming is asynchronous
     - it needs the data to be flowing continously
+
+
+### Creating New Reactive Streams
+```java
+public class SimpleFluxFactoriesTest {
+  @Test
+  public void simple() {
+
+    // 1. Create a new Flux whose values are in a (finite) range
+    Publisher<Integer> rangeOfIntegers = Flux.range(0, 10);
+    StepVerifier.create(rangeOfIntegers).expectNextCount(10).verifyComplete();
+
+    // 2. Create a new Flux whose values are the literal strings A, B, C
+    Flux<String> letters = Flux.just("A", "B", "C");
+    StepVerifier.create(letters).expectNext("A", "B", "C").verifyComplete();
+
+    // 3. Create a new Mono whose single value is a java.util.Date
+    long now = System.currentMillis();
+    Mono<Date> greetingMono = Mono.just(new Date(now));
+    StepVerifier.create(greetingMono).expectNext(new Date(now)).verifyComplete();
+
+    // 4.Create an Empty Mono
+    Mono<Object> empty = Mono.empty();
+    StepVerifier.create(empty).verifyComplete();
+
+    // 5. Create a Flux whose elements come from a Java Array
+    Flux<Integer> fromArray = Flux.fromArray(new Integer[] { 1, 2, 3 });
+    StepVerifier.create(fromArray).expectNext(1, 2, 3).verifyComplete();
+
+    // 6. Create a Flux whose elements come from a Java Iterable, which describes among other things all java.util.Collection subclasses like List, Set, etc.
+    Flux<Integer> fromIterable = Flux.fromIterable(Arrays.asList(1, 2, 3)); 
+    StepVerifier.create(fromIterable).expectNext(1, 2, 3).verifyComplete();
+
+    // 7. Create a new Flux from a Java 8 Stream
+    AtomicInteger integer = new AtomicInteger();
+    Supplier<Integer> supplier = integer::incrementAndGet;
+    Flux<Integer> integerFlux = Flux.fromStream(Stream.generate(supplier));
+    StepVerifier.create(integerFlux.take(3))
+        .expectNext(1)
+        .expectNext(2)
+        .expectNext(3)
+        .verifyComplete();
+  }
+}
+```
