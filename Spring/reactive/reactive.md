@@ -115,6 +115,11 @@ class Synchronous implements Reader {
   - Components
     - `Publisher`
       - broadcasts data of type T to a Subscriber
+      - Specialized Publishers
+        - `Flux`
+          - reactive sequence 0..N items
+        - `Mono`
+          - single-value or empty (0..1) result
     - `Subscriber`
       - As soon as Subscriber subscribes, it receives a Subscription
       - uses Subscription to request more data
@@ -136,7 +141,6 @@ class Synchronous implements Reader {
           - This allows consumers to consume the messages as they can, and no faster
         - This regulated consumption of data is `flow control`
     - Network Programming using TCP/IP or UDP
-        - 
 ### Why try-catch is bad for reactive programming
   - it is synchronous by nature
     - try catch blocks the execution
@@ -313,3 +317,23 @@ classDiagram
     <<interface>>
   }
 ```
+
+### Important Notes
+  - `error` and `completion` signals both terminate an stream, aka `terminal signals`
+    - `onComplete()` will not execute if there is an error encountered
+  - Other ways to subscribe:
+    - ```java
+      subscribe(Consumer<? super T> consumer,
+          Consumer<? super Throwable> errorConsumer,
+          Runnable completeConsumer,
+          Consumer<? super Subscription> subscriptionConsumer);
+      ```
+    - ```java
+      class SampleSubscriber<T> extends BaseSubscriber <T> {
+        ...
+      }
+
+      SampleSubscriber<Integer> ss = new SampleSubscriber<>();
+      Flux<Integer> ints = Flux.range(1, 4);
+      ints.subscribe(ss)
+        ```
