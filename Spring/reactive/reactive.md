@@ -186,14 +186,14 @@ public class SimpleFluxFactoriesTest {
         .verifyComplete();
   }
 }
-```
+``` 
 
 ### Conversion From Reactive Stream types to Jdk Flow types
 ```java
 public class FlowAndReactiveStreamsTest {
   
   @Test
-  public void conver() {
+  public void convert() {
 
     // demonstrates converting to and from Reactive Streams types with the Reactive Streams conversions
     // Flow is define by JDK
@@ -205,9 +205,111 @@ public class FlowAndReactiveStreamsTest {
     StepVerifier.create(rangeOfIntegersAsReactiveStream).expectNextCount(10).verifyComplete();
 
     // demonstrates converting to and from Reactor FLux<T> and Mono<T> using Reactor conversions
-    Flux<Integer> rangeOfIntegersAsReactorFluxAgain = JdkFlowAdapter.flowPblisherToFlux(rangeOfIntegersAsJdk9Flow);
+    Flux<Integer> rangeOfIntegersAsReactorFluxAgain = JdkFlowAdapter.flowPublisherToFlux(rangeOfIntegersAsJdk9Flow);
     StepVerifier.create(rangeOfIntegersAsReactorFluxAgain).expectNextCount(10).verifyComplete();
   }
     
 }
+```
+
+### Processors
+```java
+public class EmitterProcessorTest {
+  
+  @Test
+  public void emitterProcessorTest() {
+    EmitterProcessor<String> processor = EmitterProcessor.create();
+    producer(processor.sink());
+    consume(processor);
+  }
+
+  private void produce(FluxSink<String> sink) {
+    sink.next("1");
+    sink.next("2");
+    sink.next("3");
+    sink.complete();
+  }
+
+  private void consume(Flux<String> publisher) {
+    StepVerifier
+        .create(publisher)
+        .expectNext("1")
+        .expectNext("2")
+        .expectNext("3")
+        .verifyComplete();
+  }
+}
+
+```
+
+### Reactive Streams API
+```mermaid
+classDiagram
+  direction RL
+  Flux --|> Publisher : implements
+  Mono --|> Publisher : implements
+  Publisher --> Subscriber: uses
+  Subscriber --> Subscription: uses
+
+  class Flux {
+    <<abstract>>
+    +...
+  }
+
+  class Mono {
+    <<abstract>>
+    +...
+  }
+
+  class Publisher~T~ {
+    <<interface>>
+    +subscribe(Subscriber~T~): void
+  }
+
+  class Subscriber~T~ {
+    <<interface>>
+    +onSubscribe(Subscription): void
+    +onNext(T): void
+    +onError(Throwable): void
+    +onComplete(): void
+  }
+
+  class Subscription~T~ {
+    <<interface>>
+    +request(long)
+    +cancel()
+  }
+```
+
+### Java 9 Flow API
+```mermaid
+classDiagram
+  direction RL
+  Publisher --> Subscriber: uses
+  Subscriber --> Subscription: uses
+  Processor --|> Subscriber: extends
+  Processor --|> Publisher: extends
+
+  class Publisher~T~ {
+    <<interface>>
+    +subscribe(Subscriber~T~): void
+  }
+
+  class Subscriber~T~ {
+    <<interface>>
+    +onSubscribe(Subscription): void
+    +onNext(T): void
+    +onError(Throwable): void
+    +onComplete(): void
+  }
+
+  class Subscription~T~ {
+    <<interface>>
+    +request(long)
+    +cancel()
+  }
+  
+  class Processor~T~ {
+    <<interface>>
+  }
 ```
