@@ -1,0 +1,26 @@
+
+## Install
+  - https://github.com/conduktor/kafka-stack-docker-compose
+`docker-compose.yaml`
+```yaml
+version: "3.1"
+
+services:
+  kafka:
+    image: 'bitnami/kafka:3.2.3'
+    restart: "no"
+    privileged: true
+    ports:
+      - 2181:2181
+      - 19092:19092
+    environment:
+      - KAFKA_ENABLE_KRAFT=yes
+      - KAFKA_CFG_PROCESS_ROLES=broker,controller
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:19092,CONTROLLER://:2181
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://127.0.0.1:19092
+      - KAFKA_BROKER_ID=1
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@127.0.0.1:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+```
