@@ -19,6 +19,11 @@
    - bridge between Hardware and Software
 5. **`Docker Volumes`**
    - Exists outside of containers but can be mounted into them
+6. **`Restart Policy`**
+   - very basic form of self-healing that allows local Docker engine to automatically restart failed containers
+   - applied per container
+   - imperatively appliend in docker run commands, or declaratively in YAML files
+   - restart policies: [always, unless-stopped, on-failure]
 ## Commands
   - **`docker images`**
     - list all images
@@ -80,6 +85,8 @@
   - **`docker rm $(docker stop <IMAGENAME/ID>)`**
     - gracefully shutdown a container
     - 1st stop the container, this will return the id and use docker rm
+  - **`docker rmi -f $(docker ps -aq)`**
+    - Remove all containers, running or stopped
   - **`docker start <id | name>`**
     - start a stopped container
   - **`docker exec -it <id | name> bash`**
@@ -190,3 +197,32 @@
        - SIGTERM ->  request to terminate 
      - if still running after 10s, it will issue a `SIGKILL`
        - SIGKILL -> terminate with force
+
+### Self-healing containers with restart policy
+  - Restart Policy
+    - form of self-healing
+    - allows local Docker engine to auto restart failed containers
+    - applied per-container basis
+    - configured imperatively via `docker run` or declaratively via YAML like Docker Compose / K8s
+    - Restart Policies
+      - `always`
+        - always restart a failed container unless its been explicitly stopped
+        - `docker run -it --restart always alpine bash`
+          - once you exited the container, it will restart it
+            - exit command will kill the container
+          - feature:
+            - when you stop(EXITED) a container, then restart the Docker daemon
+              - it will also restart the container
+      - `unless-stopped`
+        - similar to `--restart always`, but container will not be restarted if was previously stopped and Docker daemon restart
+      - `on-failure`
+        - will restart a container if it exits with a  non-zero exit code
+        - will also restart containers when Docker daemon restarts, including stopped states
+    - using YAML:
+      - ```yaml
+        services:
+          myservice:
+            <snip>
+            restart_policy:
+              condition: always | unless-stopped | on-failure
+        ```
