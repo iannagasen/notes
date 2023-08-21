@@ -177,4 +177,16 @@
   - The data created in this example is stored on the Docker hosts local filesystem.
     - If the Docker host fails, the data will be lost
   - Containers are designed to be immutable objects and its not a good practice to write data into them
-    - For these reasons, Docker provides **volumes**
+    - For these reasons, Docker provides **volumes**  
+
+### Stopping containers gracefully
+1. `docker rm <container> -f`
+   - the container is killed immediately without warning
+   - it goes straight to SIGKILL
+2. `docker stop` + `docker rm`
+   - is betterm since it gives the process inside container ~10s to complete any task and gracefully shutdown
+   - `docker stop` 
+     - sends a `SIGTERM` signal to the main app process inside the container (PID 1)
+       - SIGTERM ->  request to terminate 
+     - if still running after 10s, it will issue a `SIGKILL`
+       - SIGKILL -> terminate with force
