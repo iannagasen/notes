@@ -13,6 +13,12 @@
      - it is impossible to change the contents of the image w/o creating a new unique digest.
     - `docker images --digests alpine --format "{{.Digest}}"`
       - sha256:ec050c32e4a6085b423d36ecd025c0d3ff00c38ab93a3d71a460ff1c44fa6d77
+4. **`Kernel`**
+   - Core of OS,
+   - responsible for managing resources, processes and hardware interaction
+   - bridge between Hardware and Software
+5. **`Docker Volumes`**
+   - Exists outside of containers but can be mounted into them
 ## Commands
   - **`docker images`**
     - list all images
@@ -63,6 +69,36 @@
   - **`docker manifest`**
     - inspect the manifest list of any image on Docker
     - `docker manifest inspect golang | grep 'architecture\|os'`
+  - **`docker ps --filter ancestor=<IMAGE_ID>`**
+    - list all containers from a given Image Id
+  - **`docker run -it`**
+    - run a new container
+    - `-it` -> interactive and attach it to current terminal
+  - **`docker stop`**
+    - stop a container, but the configruation and contents still exists on the Docker host.
+      - means that it can be restarted anytime
+  - **`docker rm $(docker stop <IMAGENAME/ID>)`**
+    - gracefully shutdown a container
+    - 1st stop the container, this will return the id and use docker rm
+  - **`docker start <id | name>`**
+    - start a stopped container
+  - **`docker exec -it <id | name> bash`**
+    - run bash against the container
+  
+## FAQs
+1. How is Containers smaller, faster and more portable than traditional VMs
+   - Shared OS Kernel
+     - Containers share the host system Kernel
+     - VMs run a complete guest OS on top of a hypervisor, including its own kernel and libraries
+   - Resource Efficiency
+     - Containers are lightweight because they share the host Kernel and utilize a layered file, 
+       - allows multiple containers to share the same underlying resources w/o overhead of running muliple full OS instances
+   - Fast Startup and Scaling
+     - Containers can start almost instantly because they leverage the existing kernel
+     - VMs take longer to start since they require booting up an entire guest OS
+2. How to exit to a running container
+   - CTRL + PQ or type exit
+   - note you will just detach to the current container 
 
 ## Running a containerized/dockerized application
 1. Pull the dockerized application from github
@@ -108,3 +144,37 @@
     - Each layer is identified by a crypto ID - hash of the layer content
     - means that changing the contents of the image or any of its layer
       - associated crypto hashes will change
+
+## Containers
+
+### Container Life Cycle
+1. `docker run --name percy -it ubuntu:latest`
+   - create a container from ubuntu image and named it percy 
+2. `/bin/sh`
+   - go to its terminal
+3. ```bash
+   cd tmp
+   ls -l
+   echo "Ian Agasen was here" > newfile
+   ls -l
+   cat newfile
+   ```
+   - create a new file in tmp directory
+4. `CTRL + PQ` 
+   - to exit the container
+5. `docker stop percy`
+   - stop the container
+6. `docker ps`
+   - check all the running containers, percy should not be listed
+7. `docker start percy`
+   - start the container
+8. `docker exec -it percy bash`  
+   - Connect to container using an interactive shell
+9. cd tmp
+   - check file if it exists.
+
+### Persistent Nature of containers:  
+  - The data created in this example is stored on the Docker hosts local filesystem.
+    - If the Docker host fails, the data will be lost
+  - Containers are designed to be immutable objects and its not a good practice to write data into them
+    - For these reasons, Docker provides **volumes**
