@@ -1240,3 +1240,11 @@ sequenceDiagram
       - most popular option for durability and availability
         - `acks=-1` & `min.insync.replicas=2`
           - allows to withstand at most the lost of 1 broker, assuming RF=3
+
+
+## **`KAFKA HIGH LEVEL APIS`**
+  - APIS:
+    - Kafka Connect
+      - solves: External Source -> Kafka 
+    - Kafka Streams
+    - Schema Registry

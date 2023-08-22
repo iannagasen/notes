@@ -3,6 +3,8 @@
 ## Glossary
 1. **`DOCKERFILE`**
    - Instruction that will use by Docker to build the app
+   - describes an application and tells Docker how to build it into an image
+   - bridge the gap between developers and operations
 2. **`Dangling Image`**
    - image that is no longer tagged and no repository name
    - occurs when building a new image with a tag that already exists
@@ -226,3 +228,83 @@
             restart_policy:
               condition: always | unless-stopped | on-failure
         ```
+
+## Containerizing an app
+   - Dockerfile should be located in the `Build Context`
+
+Sample Dockerfile
+```Dockerfile
+# Test web-app to use with Pluralsight courses and Docker Deep Dive book
+FROM alpine
+
+LABEL maintainer="nigelpoulton@hotmail.com"
+
+# Install Node and NPM
+RUN apk add --update nodejs npm curl
+
+# Copy app to /src
+COPY . /src
+
+WORKDIR /src
+
+# Install dependencies
+RUN  npm install
+
+EXPOSE 8080
+
+ENTRYPOINT ["node", "./app.js"]
+```
+  - Start with alpine image
+  - make a note that "nigelpoulton@hotmail.com" is the maintainer
+  - Copy everything from build context to the /src directory in the image
+  - Set the working directory as /src
+  - install dependencies
+  - set the app.js to run
+
+Sample Dockerfile for SpringBoot App
+```Dockerfile
+FROM eclipse-temurin:17-jre-focal
+COPY target/dockerdemo-0.0.1-SNAPSHOT.jar /src/app.jar
+WORKDIR src
+EXPOSE 8080
+CMD ["java", "jar", "app.jar"]
+```
+   - to containerize the app / to build the image:
+     - `docker build -t ian_app:latest .`
+   - to run a container based on the image
+     - `docker run --name ian_app --publish 8080:8080 ian_app:latest`
+
+## Dockerfiles
+  - `FROM`
+    - Dockerfile instruction starts with `FROM` directives
+    - pull an image that will be used as the base layer
+    - everything else will be added as new layers above the base layer
+    - refers to a Linux based image
+    - ![](screenshots/2023-08-22-17-25-31.png)
+  - `RUN`
+    - command to execute
+    - ex: `RUN apk add --update nodejs-npm`
+      - it uses apk package manager to install nodejas and nodejs-npm into the image
+      - it does this by adding a new layer from the base image
+      - take note: `apk` should be available in the base layer
+    - ![](screenshots/2023-08-22-17-25-53.png)
+  - `COPY`
+    - ex: `COPY . /src`
+      - creates a new layer and copies application and dependency files from the build context
+    - ![](screenshots/2023-08-22-17-27-13.png)
+  - `WORKDIR`
+    - ex: `WORKDIR /src`
+      - Dockerfile uses the WORKDIR directive to set the working directory for the rest of the instructions
+      - creates metadata and **does NOT create a new image layer**
+
+### Pushing a build image to DockerHub
+  - 1. Login
+    - `docker login`
+  - 2. Tag the image
+    - `docker tag <image-name>:<tag-name> <username>/<image-name>:<tag-name>`
+    - Ex: `docker tag test-ian:latest ianneilagasen/test-push:0.0.1`
+  - 3. Push the image
+    - `docker push <username>/<image-name>:tag-name`
+    - Ex: `docker push ianneilagasen/test-push:0.0.1`
+    - ![](screenshots/2023-08-22-17-53-01.png)
+    - ![](screenshots/2023-08-22-17-53-28.png)
