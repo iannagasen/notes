@@ -404,3 +404,58 @@ COPY --from=stage0 /opt/demo/target/demo.jar /opt/demo
   - With multi stage Dockerfile
     - CI/CD pipelince can focus on `building` the applcation in the build stage, then
     - `package` the runtime artifact in the final stage
+
+
+### Multi-stage builds and build targets
+  - Build multiple images from a single Dockerfile
+From these example we may want to create separate images for the client and server. We can do these by splitting the final `prod` stage in the Dockerfile into two stages
+```dockerfile
+FROM golang:1.20-alpine AS base
+WORKDIR /src
+COPY go.mod go.sum .
+RUN go mod download
+COPY . .
+
+FROM base AS build-client
+RUN go build -o /bin/client ./cmd/client
+
+FROM base AS build-server
+RUN go build -o /bin/server ./cmd/server
+
+FROM scratch AS prod
+COPY --from=build-client /bin/client /bin/
+COPY --from=build-server /bin/server /bin/
+ENTRYPOINT [ "/bin/server" ]
+```
+
+Dockerfile with 2 separate image
+```Dockerfile
+FROM golang:1.20-alpine AS base
+WORKDIR /src
+COP go.mod go.sum .
+RUN go mod download
+COPY . .
+
+FROM base AS build-client
+RUN go build -o /bin/client ./cmd/client
+
+FROM base AS build-server
+RUN go build -o /bin/server ./cmd/server
+
+FROM scratch AS prod-client
+COPY --from=build-client /bin/client /bin/
+ENTRYPOINT [ "/bin/client" ]
+
+FROM scratch AS prod-server
+COPY --from=build-server /bin/server /bin/
+ENTRYPOINT [ "/bin/server" ]
+```
+- to build the 2 image, build separately the build targets for each final stage
+  - Syntax:
+    - ```Dockerfile
+      docker build -t <name>:<tage> --target <build-target> .
+      ```
+  - docker build -t multi:client --target prod-client .
+  - docker build -t multi:server --target prod-server .
+
+![](screenshots/2023-08-23-23-04-21.png)
