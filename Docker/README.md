@@ -459,3 +459,57 @@ ENTRYPOINT [ "/bin/server" ]
   - docker build -t multi:server --target prod-server .
 
 ![](screenshots/2023-08-23-23-04-21.png)
+
+
+### Docker Compose
+  - structured/declarative way to contain normal docker commands
+Sample docker run command
+  - takes care of creating a common Network
+  - to run docker compose
+    - `docker-compose -f mongo.yaml up`
+      - `-f <ARG>` -> file 
+      - `up` -> start all container declared
+  - stopping all container (including the network)
+    - `docker-compose -f mongo.yaml down`
+      - stop all container (including the network)
+```sh
+docker run -d \
+  --name mongodb \ 
+  -p 27017:27017
+  -e MONGO_INITDB_ROOT_USERNAME=admin \
+  -e MONGO_INITDB_ROOT_PASSWORD=password \
+  --net mongo-network \
+  mongo
+
+docker run -d \
+  --name mongo-express \
+  -p 8080:8080 \
+  -e ME_CONFIG_MONGODB_ADMINUSERNAME=admin \
+  -e ME_CONFIG_MONGODB_ADMINPASSWORD=password \
+  -e ME_CONFIG_MONGODB_SERVER=mongodb \
+  --net mongo-network \
+  mongo-express
+```
+
+Docker compose
+```yaml
+version: 3
+services:
+  # container name
+  mongodb:
+    image: mongo
+    ports:
+      - 27017:27017
+    environmet:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+  
+  mongo-express:
+    image: mongo-express 
+    ports:
+      - 8080:8080
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=password
+      - ME_CONFIG_MONGODB_SERVER=mongodb
+```
