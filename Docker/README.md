@@ -108,6 +108,10 @@
 2. How to exit to a running container
    - CTRL + PQ or type exit
    - note you will just detach to the current container 
+3. Why use multi-stage build? 
+   - Single image, multi layer is large
+     - each instruction in the Dockerfile adds a new layer in the image, increasing the size
+     - ideally, you want the image to contain only the image that are required by the container
 
 ## Running a containerized/dockerized application
 1. Pull the dockerized application from github
@@ -308,3 +312,95 @@ CMD ["java", "jar", "app.jar"]
     - Ex: `docker push ianneilagasen/test-push:0.0.1`
     - ![](screenshots/2023-08-22-17-53-01.png)
     - ![](screenshots/2023-08-22-17-53-28.png)
+
+
+## Moving to production with Multi-stage Builds
+  - Big Docker Images is bad
+    - slow,
+    - more potetntion vulnerabilities
+    - bigger attack surface
+  - Solution: Multi Stage Builds
+    - Perform build in parallel
+
+Sample Multistage dockerfile:
+```dockerfile
+FROM golang:1.20-alpine AS base
+WORKDIR /src
+COPY go.mod go.sum .
+RUN go mod download
+COPY . .
+
+FROM base AS build-client
+RUN go build -o /bin/client ./cmd/client
+
+FROM base AS build-server
+RUN go build -o /bin/server ./cmd/server
+
+FROM scratch AS prod
+COPY --from=build-client /bin/client /bin/
+COPY --from=build-server /bin/server /bin/
+ENTRYPOINT [ "/bin/server" ]
+```
+NOTE from above Dockerfile:
+  - it has 4 FROM instructions
+    - Stage 0 --> base
+    - Stage 1 --> build-client
+    - Stage 2 --> build-server
+    - Stage 3 --> prod
+  - each stage outputs an image that can be used by other stages
+    - these intermediate images are cleaned up when the final build completes
+  - Base stage goal:
+    - create a reusable build image
+
+### Sample of Inefficient Dockerfile that can be solve by multilayer
+```Dockerfile
+# Unoptimal image: 636 MB
+FROM maven:3.6.3-adoptopenjdk-11 as base
+WORKDIR /opt/demo
+COPY . .
+RUN mvn clean package -Dmaven.test.skip=true
+```
+
+Using multistage
+```Dockerfile
+# KEEP IN MIND: we only need the JRE not the JDK
+
+# Stage 0
+# initialize build and set base image
+FROM maven:3.6.3-adoptopenjdk-11 as stage0
+
+# Speed up maven a bit
+ENV MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
+
+# Set working directory
+WORKDIR /opt/demo
+
+# copy just pom.xml
+COPY pom.xml .
+
+# go offline using the pom.xml
+RUN mvm dependency:go-offline
+
+# copy other files
+COPY ./src ./src
+
+# compile the source code and package it in a jar
+RUN mvm clean install -Dmaven.test.skip=true
+
+##############
+
+# Stage 1
+# Set base image for second stage
+FROM adoptopenjdk11-jre-11.0.9_11-alpine
+
+# set deployment directory
+WORKDIR /opt/demo
+
+# Copy over the build artifact from the maven image
+# Here demo.jar is a placeholder for the artifactId
+COPY --from=stage0 /opt/demo/target/demo.jar /opt/demo
+```
+- CI/CD pipeline
+  - With multi stage Dockerfile
+    - CI/CD pipelince can focus on `building` the applcation in the build stage, then
+    - `package` the runtime artifact in the final stage
