@@ -112,6 +112,12 @@
    - Single image, multi layer is large
      - each instruction in the Dockerfile adds a new layer in the image, increasing the size
      - ideally, you want the image to contain only the image that are required by the container
+4. What are the top-level keys:
+   - 1. services
+   - 2. networks
+   - 3. volumes
+   - 4. secrets
+   - 5. configs
 
 ## Running a containerized/dockerized application
 1. Pull the dockerized application from github
@@ -513,3 +519,22 @@ services:
       - ME_CONFIG_MONGODB_ADMINPASSWORD=password
       - ME_CONFIG_MONGODB_SERVER=mongodb
 ```
+
+### Top Level Docker Compose Keys
+  - 1. `services`
+    - define applications microservices
+      - EX: a web front end, an in-memory cache called redi
+        - compose will deploy each of these microservices to its own container
+  - 2. `networks`
+    - tell docker to create new networks
+    - by default, modern versions of Compose create `overlay` networks that span multiple hosts.
+      - however `driver` property can be used to specify different network types
+    - creating a new overlay network called *over-net*
+      - ```yaml
+        networks:
+          over-net: # network name
+          driver: overlay
+          attachable: tru
+        ```
+  - 3. volumes 
+    - tell docker to create new volumes
