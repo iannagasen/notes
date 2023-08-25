@@ -538,3 +538,69 @@ services:
         ```
   - 3. volumes 
     - tell docker to create new volumes
+
+### Sample Docker Compose file
+```yaml
+version: 3.5
+
+services:
+  web-fe:
+    build: .
+    command: python app.py
+    ports:
+      - target: 8080
+        published: 5001
+    networks:
+      - counter-net
+    volumes:
+      - type: volume
+        source: counter-vol
+        target: /app
+  
+  redis:
+    image: "redis:plane"
+    networks:
+      counter-net:
+  
+networks:
+  counter-net:
+volume:
+  counter-vol:
+```
+  - The service section has 2 2nd level keys:
+    - web-fe
+    - redis
+    - each of thes defines a microservices
+      - Compose will deploy each as its own container
+    - Definition of each keys:
+      - web-fe
+        - `build: .`
+          - tells docker to build a new image using Dockerfile in the current directory (.)
+          - newly built image will be used in a later step to create the container for this service
+        - `command: python app.py`
+          - run a python app called app.py in every container for web-fe service
+          - app.py should exist and Python must be installed
+            - This is done in the Dockerfile which is build by the `build: .` step
+          - **NOTE** python app.py could already be defined in the Dockerfile.
+            - This ex. shows that we can override instructions set in Dockerfiles
+        - `ports:`
+          - tells docker to map port `8080` inside the container(`target`) to port `5001` on the host(`published`)
+            - means, traffic from Docker host port 5001 will be directed to port 8080 on the container
+            - app inside the container listens on port 8080
+        - `networks`
+          - which network to attach the service's containers to.
+          - network should already exists or be defined in the networks top-level key
+        - `volumes`
+          - mount the `counter-vol` volume (`source:`) to `/app`
+      - redis:
+        - start a standalone container called redis based on the `redis:alpine` image
+          - image will be pulled from Docker Hub
+    - Running the Docker Compose file
+      - `docker-compose up &`
+        - `docker-compose up`
+          - starts the services in the compose.yaml file
+        - `&`
+          - runs the services in the background
+      - ![](screenshots/2023-08-25-22-03-58.png)
+    - Logs
+      - ![](screenshots/2023-08-25-22-05-02.png)
