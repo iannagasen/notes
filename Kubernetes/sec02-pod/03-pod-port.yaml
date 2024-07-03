@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-first-simple-pod
+spec:
+  containers:
+  - name: nginx-container
+    image: nginx:1.14.2
+    ### this is how you expose a port
+    ports:
+    - name: "web-port"
+      ## what you like to export
+      containerPort: 80
+      ## default: TCP, POSSIBLE: UDP, SCTP
+      protocol: TCP
