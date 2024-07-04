@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-first-simple-pod
+spec:
+  # Possible values: Always, OnFailure, Never
+  restartPolicy: Never
+  containers:
+  - name: ubuntu-container
+    image: ubuntu
+    # this is list of string 
+    # can be form of : [ "date" ]
+    args: 
+      - date

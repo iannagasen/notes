@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+spec:
+  # Possible values: Always, OnFailure, Never
+  restartPolicy: Never
+  terminationGracePeriodSeconds: 0
+  containers:
+  - name: entrypoint
+    image: vinsdocker/k8s-entrypoint
+    ## use command instead of args
+    ## to override the entrypoint
+    command: 
+      - "date"

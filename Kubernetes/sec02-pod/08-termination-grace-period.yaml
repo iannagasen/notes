@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+spec:
+  # Possible values: Always, OnFailure, Never
+  restartPolicy: Never
+  terminationGracePeriodSeconds: 0
+  containers:
+  - name: ubuntu-container
+    image: ubuntu
+    # sleep for 1 hour
+    args: 
+      - "sleep"
+      - "3600"

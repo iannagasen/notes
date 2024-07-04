@@ -205,12 +205,28 @@ Forwarding from 127.0.0.1:80 -> 80
 Forwarding from [::1]:80 -> 80
 
 ### now you can go to 127.0.0.1:80 in your browser (nginx page)
-
 ```
+
+#### Restart Policy
+- what to do when the container dies
+
+#### Termination Grace Period
+
+
+#### Accessing pod running in the cluster
+
+
+---
 
 ### Creating Cluster using Kind and Kube Proxy
 
 #### Kubernetes Resource yaml format
+```yaml
+# when you kill the pod, it will have a grace period of 0 seconds
+# the default value is 30 seconds
+terminationGracePeriodSeconds: 0
+```
+
 
 - https://kubernetes.io/docs/reference/kubernetes-api/workload-resources/
 
@@ -348,3 +364,20 @@ Command similar to watch
 ```
 while true; do clear; kubectl get pods; sleep 3; done
 ```
+
+ENTRYPOINT vs CMD
+- ENTRYPOINT is the command that will be executed when the container starts
+- CMD is the default command that will be executed when the container starts
+- CMD can be overriden by the user
+- ENTRYPOINT can be overriden by the user
+
+exect form vs shell form
+- exec form is the form where the command is executed directly
+- shell form is the form where the command is executed via a shell
+- exec form is preferred because it is faster and more secure
+- exec form is the form where the command is executed directly
+- shell form is the form where the command is executed via a shell
+
+![alt text](docs/screenshots/README/image-1.png)
+![alt text](docs/screenshots/README/image-2.png)
+![alt text](docs/screenshots/README/image-3.png)
