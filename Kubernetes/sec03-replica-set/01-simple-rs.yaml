@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: my-rs
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: my-app
+  # if you cant see a pod with label app=my-pod, create one
+  # this is what the template property is for
+  template:
+    metadata:
+      name: my-pod
+      labels:
+        app: my-app
+        team: team-a
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
