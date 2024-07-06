@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-service-deploy
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: order-service
+  template:
+    metadata:
+      name: my-pod
+      labels:
+        app: order-service
+    spec:
+      containers:
+      - name: order-service-container
+        image: vinsdocker/k8s-app:v1
+        env:
+        - name: DUMMY
+          value: "8"
+        ports:
+        - name: "app-port"
+          containerPort: 80
