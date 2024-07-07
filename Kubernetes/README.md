@@ -214,7 +214,11 @@ Forwarding from [::1]:80 -> 80
 
 
 #### Accessing pod running in the cluster
+- similar to `docker exec` command
 
+```bash
+kubectl exec -it <pod_name> -- bash
+```
 
 ---
 

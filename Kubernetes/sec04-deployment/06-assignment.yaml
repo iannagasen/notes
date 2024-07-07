@@ -1,0 +1,28 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: assignment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: assignment
+  template:
+    metadata:
+      labels:
+        app: assignment
+    spec:
+      containers:
+      - name: assignment
+        image: vinsdocker/k8s-deploy-assignment
+        ports:
+        - containerPort: 8080
+          name: "app-port"
+        env:
+          - name: "spring.redis.port"
+            value: "6379"
+          - name: "spring.redis.host"
+            # value get from IP of redis service
+            # kubectl get pods -o wide
+            value: "10.244.2.4"
