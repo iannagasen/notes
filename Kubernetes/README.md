@@ -404,3 +404,35 @@ kubectl port-forward <resource> <local_port>:<remote_port>
 kubectl apply -f <resource.yaml>
 
 ```
+
+---
+### Service
+- a way to expose the pod to the outside world
+- a logical abstraction for a set of Pods
+  - and expose them via single stable endpoint
+    - stable IP address
+    - DNS name
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  # clients can call this name
+  name: product-service
+spec:
+  selector:
+    # labels to group the pods
+    app: product-service-app
+  ports:
+    - port: 80 # service port, clients will call this port
+      protocol: TCP
+      targetPort: 80 # container port, the port where the pod is listening
+```
+
+
+`kube-proxy`
+- a simple proxy
+- k8s resource Service does not consume CPU or memory
+- Not round-robin load balancing. It is random
+- Do not expect URL rewriting / path based routing
+  - like Ingress
