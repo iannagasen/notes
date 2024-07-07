@@ -385,3 +385,22 @@ exect form vs shell form
 ![alt text](docs/screenshots/README/image-1.png)
 ![alt text](docs/screenshots/README/image-2.png)
 ![alt text](docs/screenshots/README/image-3.png)
+
+
+```bash
+kubectl get all
+kubectl get pods
+kubectl get deploy
+
+kubectl get pods -o wide
+kubectl logs deploy/<deployment-name>
+## specific container for multi pod deployment
+kubectl logs deploy/<deployment-name> -c <container-name>
+
+## port forwarding
+## remote port should be explicitly exposed in the resource yaml file
+kubectl port-forward <resource> <local_port>:<remote_port>
+
+kubectl apply -f <resource.yaml>
+
+```
