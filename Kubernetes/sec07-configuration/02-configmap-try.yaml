@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sample-configmap
+data:
+  my-key: keyntot
+  my-pass: pa$$
+
+---
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: podtot
+spec:
+  restartPolicy: Never
+  containers:
+  - name: ubuntu
+    image: ubuntu
+    env:
+    - name: app.key
+      valueFrom: 
+        configMapKeyRef:
+          name: sample-configmap
+          key: my-key
+    - name: app.pass
+      valueFrom:
+        configMapKeyRef:
+          name: sample-configmap
+          key: my-pass
+    args:
+    - env

@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-app.properties
+data: 
+  application.properties: |
+    app.url=localhost:8080
+    timeout=3000
+    key=keyntot
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+spec:
+  terminationGracePeriodSeconds: 1
+  restartPolicy: Never
+  containers:
+  - name: ubuntu
+    image: ubuntu
+    args:
+    - sleep
+    - "3000"
+    volumeMounts:
+    - name: prop-volume
+      mountPath: /usr/shared/properties
+  volumes:
+  - name: prop-volume
+    configMap:
+      name: my-app.properties

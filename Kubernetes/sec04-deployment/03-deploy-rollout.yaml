@@ -24,4 +24,4 @@ spec:
           value: "8"
         ports:
         - name: "app-port"
-          containerPort: 80
+          containerPort: 80 

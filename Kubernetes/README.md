@@ -422,7 +422,7 @@ metadata:
 spec:
   selector:
     # labels to group the pods
-    app: product-service-app
+    app: product-service-app  
   ports:
     - port: 80 # service port, clients will call this port
       protocol: TCP
@@ -436,3 +436,70 @@ spec:
 - Not round-robin load balancing. It is random
 - Do not expect URL rewriting / path based routing
   - like Ingress
+
+#### Service types
+1. ClusterIP
+   1. default
+   2. only reachable within the cluster
+   3. can not be accessed from outside the cluster
+   4. private subnet communication
+2. NodePort
+   1. expose the service on each node's IP at a static port
+   2. reachable from outside the cluster
+   3. `http://<node-ip>:<node-port>`
+   4. can be use for `testing` and development
+3. `LoadBalancer`
+   1. provision an external IP address
+   2. only works in cloud providers
+   3. `http://<external-ip>:<node-port>`
+   4. can be used to recieve traffic from the internet
+
+
+---
+
+### Namespace
+- a way to organize the resources in the cluster
+- a way to divide cluster resources between multiple users
+- virtual cluster inside the cluster
+  - isolating a group of resources within a cluster
+- Use case:
+  - Dev/QA environments
+  - Isolating separate team resources
+
+- Namespace starting with 'kube' are reserved for k8s system resources
+
+#### Kube System Namespace
+```bash
+kubectl get pod -n kube-system
+
+NAME                                         READY   STATUS    RESTARTS        AGE
+coredns-7db6d8ff4d-kvjs5                     1/1     Running   6 (5m53s ago)   6d4h
+coredns-7db6d8ff4d-ntkjv                     1/1     Running   6 (5m53s ago)   6d4h
+etcd-kind-control-plane                      1/1     Running   1 (5m53s ago)   5h22m
+kindnet-bpdnn                                1/1     Running   6 (5m53s ago)   6d4h
+kindnet-p2v22                                1/1     Running   6 (5m53s ago)   6d4h
+kindnet-xnmz5                                1/1     Running   6 (5m53s ago)   6d4h
+kube-apiserver-kind-control-plane            1/1     Running   1 (5m53s ago)   5h22m
+kube-controller-manager-kind-control-plane   1/1     Running   6 (5m53s ago)   6d4h
+kube-proxy-jm296                             1/1     Running   6 (5m53s ago)   6d4h
+kube-proxy-m7xc8                             1/1     Running   6 (5m53s ago)   6d4h
+kube-proxy-nb5wg                             1/1     Running   6 (5m53s ago)   6d4h
+kube-scheduler-kind-control-plane            1/1     Running   6 (5m53s ago)   6d4h
+```
+
+```yaml
+metadata:
+  namespace: dev
+```
+
+  
+#### How to restric namespace
+
+
+### Probes
+- a way to check the health of the container
+- Problem
+  - pods are considered to be live & ready as soon as the containers are started
+  - if the pod is ready,
+    - the Service will send the requests to the pod
+    - rollingUpdate will terminate old pods

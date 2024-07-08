@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sample-configmap
+data:
+  app.url: "http://localhost:8080"
+  timeout: "1000"
+
+---
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-configmap
+spec:
+  restartPolicy: Never
+  containers:
+  - name: ubuntu
+    image: ubuntu
+    env:
+    - name: "app.properties.url"
+      valueFrom:
+        configMapKeyRef:
+          name: sample-configmap
+          key: "app.url"
+    - name: "app.properties.timeout"
+      valueFrom:
+        configMapKeyRef:
+          name: sample-configmap
+          key: "timeout"
+    args:
+    - "env"
