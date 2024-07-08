@@ -26,10 +26,10 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: pod3
-  labels:
+  labels:   
     dept: dept-2
     team: team-a
-spec:
+spec:   
   containers:
   - name: nginx
     image: nginx
