@@ -503,3 +503,31 @@ metadata:
   - if the pod is ready,
     - the Service will send the requests to the pod
     - rollingUpdate will terminate old pods
+
+
+### StatefulSet
+
+Questions
+- can you employ a ReplicaSet to replicate the database pod?
+  - Suppose you have a ReplicaSet containing a Volume(PVC) and a Pod
+  - the replicas are almost the same except for the IP and its name
+  - now, since the reference of the volume is in the Pod template,
+  - you just create replica referencing the same Volume
+#### Replicating stateful Pods
+
+1. RUnning multiple replcias with separate storage for each
+   1. Hacky Solution
+      1. Creating pods manually
+      2. Using one replica set per pod
+      3. Using multiple directories in the same volume
+   2. K8s Solution
+      1. Use Stateful Set
+
+StatefulSet vs ReplicaSet
+StatefulSet
+  1. Stable Pod IP and network
+  2. Pod name use ordinal number suffix
+  3. Each replicas are not exactly the same with others, it uses a different volume for every replica
+ReplicaSet
+  1. Pod IP and network change when rescheduled
+  2. Pod name suffix is random
