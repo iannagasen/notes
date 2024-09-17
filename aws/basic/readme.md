@@ -12,6 +12,7 @@ FAQS
   - Users 
   - Roles
 
+
 Least Privilege Principle
 
 Creating a user 
@@ -29,7 +30,7 @@ Creating a user
   12. NOTE: you can add a permission in the user, but its NOT GOOD PRACTICE
   
 
-CREATING A GROUP
+CREATING A GROUPz
   1. go to user group
   2. create user group
   3. attach permission
@@ -55,3 +56,36 @@ CREATING A GROUP
               3.  paste there ec2 ARN
               4.  create policy
       3.  try to connect again
+
+
+IAM roles, 
+ec2 instance wants to talk to s3
+
+  1. create in instance using root acc
+  2. connect using ssh
+     1. commands
+        1. aws
+        2. aws s3 ls
+           1. - unable to locate credentials
+           2. this means the ec2 instance(**NOT THE USER**) does not have credentials
+  3. IAM > ROLE >  create a role
+  4. select entity type - service
+  5. select ec2
+  6. select amazon s3 access only
+  7. go to instance actions > security > IAM roles
+     1. note: you cant see the iam role you created
+     2. why? because you the user dont have the permission to see the iam roles
+  8. go to user groups, go to the created group > add permission
+     1. iam > list instance policies > allow
+     2. create name > ec2-modify
+  9. goi to instance actions > security > IAM ROLES
+     1.  now you can see the roles, but cant assign
+     2.  go to ec2-modify permission and edit actions JSON
+         1.  add `iam:PassRole`
+  10. now attach the role
+  11. now go to the ssh connected
+      1.  aws s3 ls
+      2.  aws s3 ls s3://vins-demo/
+  12. ASSIGNMENT: copy a file from s3 to ec2
+  13. ASSIGNMENT: upload a file
+  14. DELETE ROLES and INSTANCES
