@@ -124,7 +124,7 @@ try ( var client = S3.cilent.builder().region(REGION.US_EAST_1).build() ) {
 
   client.putObject(putRequest, Path.of("/hello.txt"))
 
-  // read
+  // r
   var getRequest = GetObjectRequest.builder()
         .bucket(BUCKET)
         .key("public/02_aws.png")
@@ -152,3 +152,49 @@ ROOT ACCOUNT BEST PRACTICES
   - AWS RECOMMENDATION
     - create an user in a group called ADMINISTRATOR
       - also enable MFA for this group/user
+
+
+RDS
+  - relational database systems
+  - highly available
+  - administrative task (fully managed by aws)
+    - patching
+    - scheduled maintenance
+    - periodic backups
+  - features
+    - multi AZ (availability zones)
+      - one instance available in one az
+      - other instance available in other zone
+      - these also synchronize
+        - 1 update to another will also update other replicas
+    - read replicas
+      - 1 instance write db
+      - n instance read db
+        - these read dbs will get updates from write db asynchronously
+
+
+QUESTIONS:  
+1. what is db cluster (vs. db instance)
+2. multi az db instance vs single db instance
+3. multi az db cluster
+  
+
+CREATING RDS DB INSTANCE (can take up to 10 minutes to spun up)
+  - create database
+  - choose postgresql
+  - database name 
+  - master username
+  - self managed (credential)
+  - db instance class
+    - db.t3 micro
+  - storage
+    - general purpose ssd 
+    - allocated 20 GiB
+  - autoscaling
+    - enable
+  - connectivity
+    - dont connect to an ec2 compute resource
+  - security
+    - create new sgroup
+    - monitoring
+  - enable encryption
